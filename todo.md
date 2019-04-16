@@ -1,6 +1,8 @@
 # TODO
 
+- Read documentation about Stoneco best practice
 - Read documentation about Elixir
+- Read documentation about Elixir Style Guide
 - "Hello World" Elixir
 
 # DONE
