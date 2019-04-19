@@ -1,7 +1,6 @@
 # TODO
 
-- Read documentation about Elixir
-- Read documentation about Elixir Style Guide
+- Read documentation about Elixir -> 40%
 - "Hello World" Elixir
 
 # DONE
@@ -20,3 +19,5 @@
 
 ### Documentation
 - Read documentation about Stoneco best practice
+- Read documentation about Elixir Style Guide
+- Export Documentations on Mobile
