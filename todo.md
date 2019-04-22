@@ -2,9 +2,17 @@
 
 - Should clean lib/
 
-- Read documentation about Elixir -> 60%
+- Read documentation from [Elixir School](https://elixirschool.com/en/) -> 75%
 	- Basic Part DONE
-	- Advanced Part In Progress
+	- Advanced Part In Progress > 50%
+
+- Read documentation from [Elixir-lang](https://elixir-lang.org/)
+<!-- This documentation is much better !! -->
+	- Restart from scratch -> 10%
+
+- Add rule in CircleCi to check format
+	- [“mix format --check-formatted”](https://hexdocs.pm/mix/Mix.Tasks.Format.html)
+
 
 - Advanced Test programmation
 
@@ -12,6 +20,7 @@
 
 ### Test Programs
 - "Hello World" Elixir
+- "Hello World" Elixir Script
 
 ### Continues integration
 - Init CircleCi
@@ -20,6 +29,7 @@
 ### Environnement
 - Install Elixir
 - Config Atom for Elixir
+- Add Elixir linter in Atom
 
 ### Ressources
 - Get ISO_4217 tab in csv and json format.
