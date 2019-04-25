@@ -18,7 +18,11 @@ jobs:
       - checkout
 
       # specify any bash command here prefixed with `run: `
-      - run: echo "Hello Shell"
+      - run: echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
+      # Check if all files are well formatted -- If failed, exit.
+      - run: mix format --check-formatted
+      # Run all unit test in /test
+      - run: mix test
+
       # - run: mix deps.get
       # - run: mix ecto.create
-      # - run: mix test
