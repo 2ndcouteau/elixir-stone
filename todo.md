@@ -5,7 +5,7 @@
 - Read documentation from [Elixir-lang](https://elixir-lang.org/)
 <!-- This documentation is much better !! -->
 	- Getting Started DONE
-	- MIX and OTP --> 80%
+	- MIX and OTP DONE
 
 - Advanced Test programmation in progress
 
