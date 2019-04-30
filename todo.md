@@ -1,19 +1,25 @@
 # TODO
 
-- Should clean lib/
+### Chore
+- Create a dev git branch
+- Reactivate CircleCi on the master branch
 
-- Read documentation from [Elixir-lang](https://elixir-lang.org/)
-<!-- This documentation is much better !! -->
-	- Getting Started DONE
-	- MIX and OTP DONE
+### Test Stone Challenge Financial-System
+- Define all upstream needs
 
-- Advanced Test programmation in progress
+- Create the whole architecture
+	- Create a supervisor
+	- a Stack ?
 
 # DONE
+
+### Test Stone Challenge Financial-System
+- Init the project
 
 ### Test Programs
 - "Hello World" Elixir
 - "Hello World" Elixir Script
+- Advanced Test programming in progress
 
 ### Continues integration
 - Init CircleCi
@@ -38,6 +44,9 @@
 - Read documentation from [Elixir School](https://elixirschool.com/en/)
 	- Basic Part
 	- Advanced Part In Progress
+- Read documentation from [Elixir-lang](https://elixir-lang.org/)
+	- Getting Started DONE
+	- MIX and OTP DONE
 
 - Get Cheat sheet
 - Export Documentations on Mobile Device
