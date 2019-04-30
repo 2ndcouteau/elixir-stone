@@ -4,40 +4,44 @@
 
 version: 2
 jobs:
+  Elixir-stone:
+      docker:
+        # specify the version here
+        - image: circleci/elixir:1.8
 
-    Elixir-stone:
-        docker:
-          # specify the version here
-          - image: circleci/elixir:1.8
+        # Specify service dependencies here if necessary
+        # CircleCI maintains a library of pre-built images
+        # documented at https://circleci.com/docs/2.0/circleci-images/
+        # - image: circleci/postgres:9.4
 
-          # Specify service dependencies here if necessary
-          # CircleCI maintains a library of pre-built images
-          # documented at https://circleci.com/docs/2.0/circleci-images/
-          # - image: circleci/postgres:9.4
+      working_directory: ~/repo
 
-        working_directory: ~/repo
-
-        steps:
-          - checkout
-
-          - run: echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
-            # Check if all files are well formatted -- If failed, exit.
-          - run: mix format --check-formatted
-            # Gets all out of date dependencies
-          - run: mix deps.get
-            # Updates the given dependencies
-          - run: mix deps.update
-            # Run all unit test in /test
-          - run: mix test
+      steps:
+        - checkout
+        - run:
+            name: say Hello
+            command: echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
+        - run:
+            name: Check if all files are well formatted -- If failed, exit.
+            command: mix format --check-formatted
+        - run:
+            name: Gets all out of date dependencies
+            command: mix deps.get
+        - run:
+            name: Updates the given dependencies
+            command: mix deps.update
+        - run:
+            name: Run all unit test in /test
+            command: mix test
 
 
 
 workflows:
   version: 2
-
-  jobs:
-    - Elixir-stone:
-        filters:
-          branches:
-            only:
-              - master # list of branches to build
+  build_and_test:
+    jobs:
+      - Elixir-stone:
+          filters:
+            branches:
+              only:
+                - master # list of branches to build
