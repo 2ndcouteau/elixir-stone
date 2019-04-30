@@ -1,34 +1,44 @@
 # Elixir CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-elixir/ for more details
-version: 2.1
+
 
 jobs:
-    build:
-      branches:
-        only:
-          - master # list of branches to build
 
-    docker:
-      # specify the version here
-      - image: circleci/elixir:1.8
+    Elixir-stone:
+        docker:
+          # specify the version here
+          - image: circleci/elixir:1.8
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/postgres:9.4
+          # Specify service dependencies here if necessary
+          # CircleCI maintains a library of pre-built images
+          # documented at https://circleci.com/docs/2.0/circleci-images/
+          # - image: circleci/postgres:9.4
 
-    working_directory: ~/repo
+        working_directory: ~/repo
 
-    steps:
-      - checkout
+        steps:
+          - checkout
 
-      - run: echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
-    # Check if all files are well formatted -- If failed, exit.
-      - run: mix format --check-formatted
-    # Gets all out of date dependencies
-      - run: mix deps.get
-    # Updates the given dependencies
-      - run: mix deps.update
-    # Run all unit test in /test
-      - run: mix test
+          - run: |
+            echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
+        # Check if all files are well formatted -- If failed, exit.
+            mix format --check-formatted
+        # Gets all out of date dependencies
+            mix deps.get
+        # Updates the given dependencies
+            mix deps.update
+        # Run all unit test in /test
+            mix test
+
+
+
+workflows:
+  version: 2.1
+  jobs:
+    - Elixir_stone:
+      - build:
+        filters:
+          branches:
+            only:
+              - master # list of branches to build
