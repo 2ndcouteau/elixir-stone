@@ -1,25 +1,21 @@
-defmodule ElixirStone.MixProject do
+defmodule FinancialSystem.MixProject do
   use Mix.Project
 
+  # Use a different elixir version ~>1.8 instead of ~>1.5
   def project do
     [
-      app: :elixir_stone,
+      app: :financial_system,
       version: "0.1.0",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps(),
-      escript: escript()
+      deps: deps()
     ]
-  end
-
-  defp escript do
-      [main_module: ExampleApp.CLI]
   end
 
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      # extra_applications: [:logger]
+      extra_applications: [:logger]
     ]
   end
 
