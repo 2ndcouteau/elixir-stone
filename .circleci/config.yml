@@ -20,16 +20,15 @@ jobs:
         steps:
           - checkout
 
-          - run: |
-            echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
+          - run: echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
             # Check if all files are well formatted -- If failed, exit.
-            mix format --check-formatted
+          - run: mix format --check-formatted
             # Gets all out of date dependencies
-            mix deps.get
+          - run: mix deps.get
             # Updates the given dependencies
-            mix deps.update
+          - run: mix deps.update
             # Run all unit test in /test
-            mix test
+          - run: mix test
 
 
 
