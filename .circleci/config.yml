@@ -34,9 +34,9 @@ jobs:
 
 workflows:
   version: 2
+
   jobs:
-    - Elixir_stone:
-      - build:
+    - Elixir-stone:
         filters:
           branches:
             only:
