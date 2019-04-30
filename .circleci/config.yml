@@ -27,9 +27,9 @@ jobs:
         - run:
             name: Gets all out of date dependencies
             command: mix deps.get
-        - run:
-            name: Updates the given dependencies
-            command: mix deps.update
+        # - run:
+        #     name: Updates the given dependencies
+        #     command: mix deps.update
         - run:
             name: Run all unit test in /test
             command: mix test
