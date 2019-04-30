@@ -1,12 +1,17 @@
 # Elixir CircleCI 2.0 configuration file
 #
 # Check https://circleci.com/docs/2.0/language-elixir/ for more details
-version: 2
+version: 2.1
+
 jobs:
-  build:
+    build:
+      branches:
+        only:
+          - master # list of branches to build
+
     docker:
       # specify the version here
-      - image: circleci/elixir:1.4
+      - image: circleci/elixir:1.8
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -14,15 +19,18 @@ jobs:
       # - image: circleci/postgres:9.4
 
     working_directory: ~/repo
+
     steps:
       - checkout
 
-      # specify any bash command here prefixed with `run: `
-      - run: echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
-      # Check if all files are well formatted -- If failed, exit.
-      - run: mix format --check-formatted
-      # Run all unit test in /test
-      - run: mix test
-
-      # - run: mix deps.get
-      # - run: mix ecto.create
+      - run:
+          command: |
+            echo -e "**********************\\n* EXLIXIR STONE TEST *\\n**********************"
+        # Check if all files are well formatted -- If failed, exit.
+            mix format --check-formatted
+        # Gets all out of date dependencies
+            mix deps.get
+        # Updates the given dependencies
+            mix deps.update
+        # Run all unit test in /test
+            mix test
