@@ -1,6 +1,6 @@
-defmodule FinancialSystemTest do
+defmodule FSTest do
   use ExUnit.Case
-  doctest FinancialSystem
+  doctest FS
 
   test "User should be able to transfer money to another account" do
     assert true

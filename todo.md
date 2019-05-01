@@ -8,6 +8,86 @@
 	- Create a supervisor
 	- a Stack ?
 	- Find a way to fetch conversion values
+
+- Fetch currency conversion value
+	- First and simple way:
+		- Hard encoded conversion value
+	- or:
+		- Extern API usage
+			- https://fixer.io/
+			- https://currencylayer.com/
+			- https://openexchangerates.org/
+---
+
+### <u>Function:
+- transfert(client, to_client, value, currency, direct_conversion \\ :true)
+- multi_transfert(client, {to_clients}, value, currency, direct_conversion \\ :true)
+- conversion(client, value, from_currency, to_currency)
+
+
+### <u>Structure:
+
+- #### New Client creation:
+	- Prototype:
+		- Parameters: ("name", ID, "Currency_CODE", %{Wallets map})
+		- .
+	- When you create a `new client`, you have to create a `unique HASH` from
+	the `global map{}` of client.
+		This `HASH` will be as the ID in the Client structure.
+		Like that you will be able to certified the unicity of the client and
+		to provide a simple way to identify the client.
+		- Can be a number
+
+- #### Nested data structure:
+	- ##### <u>ClientsDB
+		- %{ID: %Client{}}
+			- Each ID have to be `unique`
+
+	- ##### <u>Client
+	Definition of the structure of one `Client`
+		- Struct %Name{}
+
+			- Require:
+				- Client Name
+					- String
+				- Client ID
+					- Unique Hash ::integer
+				- Main_currency
+					- String reference from ISO_4217
+						- Ex: "BRL"
+				- Wallets
+					- Map %{}
+					- At least one key:value init
+					(value can be positive or negative)
+						- Ex: {"BRL": 1000}
+
+			- Optionals:
+				- Date of the Wallet Creation
+				- Date of the last activity
+				- Financial exchanges historics
+					- from/to
+						- require
+					- %{Client ID}
+						- require
+					- Currency of the payment
+						- require
+					- Currency of reception (Was it a direct conversion ?)
+						- optional
+					- Value
+						- require
+					- Rate
+						- optional
+
+				- Client ID
+					- Unique Crypted/Hashed ID seed by:
+						- the Client Name
+						- the Date of the wallet creation
+
+					This could provide a security in front of account
+					manipulation because we could be able to retrieve creation
+					informations from this `ID` or to proof the incoherence of
+					the datas
+
 ---
 ---
 # <u>__DONE__</u>

@@ -7,8 +7,8 @@ defmodule FS.Supervisor do
 
   def init(:ok) do
     children = [
+      {FS.Registry, name: FS.Registry}
       # {DynamicSupervisor, name: FS.BucketSupervisor, strategy: :one_for_one}
-      # {FS.Registry, name: FS.Registry}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)

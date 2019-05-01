@@ -1,6 +1,8 @@
 defmodule FinancialSystem do
   @moduledoc """
   Documentation for FinancialSystem.
+
+  This is the `entry` function which launch our supervisor
   """
   use Application
 
