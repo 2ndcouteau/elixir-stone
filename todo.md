@@ -2,27 +2,33 @@
 
 ### Feat:
 #### Test Stone Challenge Financial-System
-- Define all upstream needs
+- [] Define all upstream needs
 
-- Create the whole architecture
-	- Create a supervisor
-	- a Stack ?
-	- Find a way to fetch conversion values
+- [] Create the whole architecture
+	- [x] Create a supervisor
+	- [x] Create a registry
+	- [x] Create a DynamicSupervisor for Clients
+	- [x] Create first rules for Clients
+	- [] a Stack ?
+	- [] Find a way to fetch conversion values
 
-- Fetch currency conversion value
+- [] Fetch currency conversion value
 	- First and simple way:
-		- Hard encoded conversion value
+		- [] Hard encoded conversion value
 	- or:
-		- Extern API usage
+		- [] Extern API usage
 			- https://fixer.io/
 			- https://currencylayer.com/
 			- https://openexchangerates.org/
 ---
 
 ### <u>Function:
-- transfert(client, to_client, value, currency, direct_conversion \\ :true)
-- multi_transfert(client, {to_clients}, value, currency, direct_conversion \\ :true)
-- conversion(client, value, from_currency, to_currency)
+- [] create_client(name, main_currency \\ "BRL")
+- [] delete_client(client_id)
+- [] create_wallet(client_id, currency, deposit \\ 0)
+- [] transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
+- [] multi_transfert(client, {to_clients}, value, currency, direct_conversion \\ :true)
+- [] conversion(client, value, from_currency, to_currency)
 
 
 ### <u>Structure:
