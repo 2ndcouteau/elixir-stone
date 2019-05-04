@@ -1,4 +1,4 @@
-defmodule FSTest do
+defmodule FinancialSystemTest do
   use ExUnit.Case
   # doctest FS
 
