@@ -23,9 +23,13 @@
 ---
 
 ### <u>Function:
-- [] create_client(name, main_currency \\ "BRL")
-- [] delete_client(client_id)
+- [x] create_client(name, main_currency \\ "BRL")
+	- Presently named `cc`
+- [] Create a wallet by default with an `amount_deposited`
+	- Update nested Map in Struct
+	- Init Currency with the `main_currency`
 - [] create_wallet(client_id, currency, deposit \\ 0)
+- [] delete_client(client_id)
 - [] transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
 - [] multi_transfert(client, {to_clients}, value, currency, direct_conversion \\ :true)
 - [] conversion(client, value, from_currency, to_currency)
