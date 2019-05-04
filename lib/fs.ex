@@ -7,9 +7,14 @@ defmodule FS do
   money conversion
   """
 
-  # def create_client(name, main_currency \\ "USD", ammount_deposit \\ 0) do
-  #   true
-  # end
+  # def create_client(name, main_currency \\ "USD", amount_deposited \\ 0) do
+  def cc(name, main_currency \\ "USD", amount_deposited \\ 0) do
+    # FS.Registry.hello_test()
+    {client_pid, id} = FS.Registry.create_client(Register, name)
+    # {client_pid, id} = FS.Registry.fetch(Register, name)
+    FS.Clients.put(client_pid, name, id, main_currency, amount_deposited)
+  end
+
   #
   # def delete_client(client_id) do
   #   true

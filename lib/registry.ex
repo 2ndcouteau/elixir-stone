@@ -19,15 +19,15 @@ defmodule FS.Registry do
 
   Returns `{:ok, pid}` if the bucket exists, `:error` otherwise.
   """
-  def lookup(server, name) do
-    GenServer.call(server, {:lookup, name})
+  def fetch(server, name) do
+    GenServer.call(server, {:fetch, name})
   end
 
   @doc """
   Ensures there is a bucket associated with the given `name` in `server`.
   """
-  def create(server, name) do
-    GenServer.call(server, {:create, name})
+  def create_client(server, name) do
+    GenServer.call(server, {:create_client, name})
   end
 
   @doc """
@@ -42,27 +42,44 @@ defmodule FS.Registry do
   def init(:ok) do
     names = %{}
     refs = %{}
-    {:ok, {names, refs}}
+    ids = %{"bank" => 0}
+    {:ok, {names, refs, ids}}
   end
 
-  def handle_call({:lookup, name}, _from, state) do
-    {names, _} = state
-    {:reply, Map.fetch(names, name), state}
+  @doc """
+  Fetch the pid of the `name` process in the `registry` state.
+  """
+  def handle_call({:fetch, name}, _from, {names, refs, ids}) do
+    {_, id} = Map.fetch(ids, name)
+    {_, client_pid} = Map.fetch(names, name)
+    {:reply, {client_pid, id}, {names, refs, ids}}
   end
 
-  def handle_call({:create, name}, _from, {names, refs}) do
-    if Map.has_key?(names, name) do
-      {:reply, {names, refs}, {names, refs}}
-    else
-      {:ok, pid} = DynamicSupervisor.start_child(FS.ClientsSupervisor, FS.Clients)
-      ref = Process.monitor(pid)
-      refs = Map.put(refs, ref, name)
-      names = Map.put(names, name, pid)
-      {:reply, {names, refs}, {names, refs}}
-    end
+  def handle_call({:create_client, name}, _from, {names, refs, ids}) do
+    ### ? Use only name or id to check ?
+    # if Map.has_key?(names, name) do
+    #   {:reply, name, {names, refs, ids}}
+    # else
+    {:ok, client_pid} = DynamicSupervisor.start_child(FS.ClientsSupervisor, FS.Clients)
+    ref = Process.monitor(client_pid)
+    refs = Map.put(refs, ref, name)
+
+    # !! Naive way !!
+    # Must be UNIQUE
+    # Should check for a duplicated entry
+    id =
+      Map.values(ids)
+      |> Enum.max()
+      |> (fn x -> x + 1 end).()
+
+    ids = Map.put(ids, name, id)
+    names = Map.put(names, name, client_pid)
+    {:reply, {client_pid, id}, {names, refs, ids}}
+    # end
   end
 
   def handle_info({:DOWN, ref, :process, _pid, _reason}, {names, refs}) do
+    ## ?? Delete the good name --> check the ID ...
     {name, refs} = Map.pop(refs, ref)
     names = Map.delete(names, name)
     {:noreply, {names, refs}}

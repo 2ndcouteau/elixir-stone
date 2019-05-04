@@ -5,7 +5,7 @@ defmodule FS.Clients do
   Bucket implementation.
   """
   def start_link(_opt) do
-    Agent.start_link(fn -> %{} end)
+    Agent.start_link(fn -> %ClientStruct{} end)
   end
 
   @doc """
@@ -16,10 +16,19 @@ defmodule FS.Clients do
   end
 
   @doc """
-  Puts the `value` for the given `key` in the `bucket`.
+  Set the `name`,`main_currency`,`amount_deposit` of the client
+    name: "unknown",
+    id: "000001",
+    main_currency: "BRL",
+    wallets: %{BRL: 0}
   """
-  def put(pid, key, value) do
-    Agent.update(pid, &Map.put(&1, key, value))
+  def put(client_pid, name, id, main_currency, _amount_deposited) do
+    Agent.update(client_pid, &Map.put(&1, :name, name))
+    Agent.update(client_pid, &Map.put(&1, :id, id))
+    Agent.update(client_pid, &Map.put(&1, :main_currency, main_currency))
+
+    # first_wallet = init_wallet(main_currency, amount_deposited)
+    # Agent.update(client_pid, &Map.put(&1, :wallet, first_wallet))
   end
 
   @doc """
@@ -29,5 +38,9 @@ defmodule FS.Clients do
   """
   def delete(pid, key) do
     Agent.get_and_update(pid, &Map.pop(&1, key))
+  end
+
+  defp init_wallet(main_currency, amount_deposited) do
+    {main_currency, amount_deposited}
   end
 end
