@@ -20,6 +20,19 @@
 			- https://fixer.io/
 			- https://currencylayer.com/
 			- https://openexchangerates.org/
+
+- [] Clients
+	- [x] Create process for each new client
+	- [x] Save him in the Registry state
+	- [x] Feel informations in the client state
+		- [x] name
+		- [x] id
+		- [x] main_currency
+		- [x] default_wallet
+	- [x] ID usage identification
+	- [x] Can fetch informations of client from his ID
+	- [] Can fetch informations of clients from names
+		- [] Find a way to return multiple value from List in get_id_name(name, id_name)
 ---
 
 ### <u>Function:
@@ -43,10 +56,12 @@
 		- .
 	- When you create a `new client`, you have to create a `unique HASH` from
 	the `global map{}` of client.
-		This `HASH` will be as the ID in the Client structure.
-		Like that you will be able to certified the unicity of the client and
-		to provide a simple way to identify the client.
-		- Can be a number
+		- Basic
+			- A number from 1000 to N
+		- Improved
+			- This `HASH` will be as the ID in the Client structure.
+			Like that you will be able to certified the unicity of the client and
+			to provide a simple way to identify the client.
 
 - #### Nested data structure:
 	- ##### <u>ClientsDB
@@ -62,14 +77,17 @@
 					- String
 				- Client ID
 					- Unique Hash ::integer
+						- from 1000 to N
+						- The "000" part is for identified the wallet currency code
 				- Main_currency
 					- String reference from ISO_4217
-						- Ex: "BRL"
+						- Ex: {"BRL", 986}
+						- The code has to be feel by the program
 				- Wallets
 					- Map %{}
 					- At least one key:value init
 					(value can be positive or negative)
-						- Ex: {"BRL": 1000}
+						- Ex: {"BRL": 1000} or {986: 1000}
 
 			- Optionals:
 				- Date of the Wallet Creation
