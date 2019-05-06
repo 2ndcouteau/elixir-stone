@@ -40,74 +40,72 @@ defmodule FS.Registry do
   ## Server Callbacks
 
   def init(:ok) do
-    names = %{}
+    ids = %{}
     refs = %{}
-    ids = %{"bank" => 0}
-    {:ok, {names, refs, ids}}
+    id_name = [{0, "bank"}]
+    {:ok, {ids, refs, id_name}}
   end
 
   @doc """
   Fetch the pid of the `name` process in the `registry` state.
   """
-  def handle_call({:fetch, name}, _from, {names, refs, ids}) do
-    {_, id} = Map.fetch(ids, name)
-    {_, client_pid} = Map.fetch(names, name)
-    {:reply, {client_pid, id}, {names, refs, ids}}
+  def handle_call({:fetch, name_or_id}, _from, {ids, refs, id_name}) do
+    {id, name} = FS.Registry.Gin.get_id_name(name_or_id, id_name)
+    {_, client_pid} = Map.fetch(ids, id)
+    {:reply, {client_pid, id, name}, {ids, refs, id_name}}
   end
 
-  def handle_call({:create_client, name}, _from, {names, refs, ids}) do
-    ### ? Use only name or id to check ?
-    # if Map.has_key?(names, name) do
-    #   {:reply, name, {names, refs, ids}}
-    # else
+  def handle_call({:create_client, name}, _from, {ids, refs, id_name}) do
     {:ok, client_pid} = DynamicSupervisor.start_child(FS.ClientsSupervisor, FS.Clients)
+    id = new_id(ids)
+    ids = Map.put(ids, id, client_pid)
+
     ref = Process.monitor(client_pid)
-    refs = Map.put(refs, ref, name)
+    refs = Map.put(refs, ref, id)
 
-    # !! Naive way !!
-    # Must be UNIQUE
-    # Should check for a duplicated entry
-    id =
-      Map.values(ids)
-      |> Enum.max()
-      |> (fn x -> x + 1 end).()
-
-    ids = Map.put(ids, name, id)
-    names = Map.put(names, name, client_pid)
-    {:reply, {client_pid, id}, {names, refs, ids}}
-    # end
+    id_name = [{id, name}] ++ id_name
+    {:reply, {client_pid, id}, {ids, refs, id_name}}
   end
 
-  def handle_info({:DOWN, ref, :process, _pid, _reason}, {names, refs}) do
-    ## ?? Delete the good name --> check the ID ...
-    {name, refs} = Map.pop(refs, ref)
-    names = Map.delete(names, name)
-    {:noreply, {names, refs}}
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, {ids, refs, id_name}) do
+    {id, refs} = Map.pop(refs, ref)
+    ids = Map.delete(ids, id)
+    id_name = List.keydelete(id_name, id, 0)
+    {:noreply, {ids, refs, id_name}}
   end
 
   def handle_info(_msg, state) do
     {:noreply, state}
   end
-end
 
-## OLD
-#   ## Server Callbacks
-#
-#   def init(:ok) do
-#     {:ok, %{"toto" => "tutu"}}
-#   end
-#
-#   def handle_call({:lookup, name}, _from, names) do
-#     {:reply, Map.fetch(names, name), names}
-#   end
-#
-#   def handle_call({:create, name}, _from, names) do
-#     if Map.has_key?(names, name) do
-#       {:reply, names, names}
-#     else
-#       IO.puts("EZLIFE")
-#       {:ok, bucket} = FS.Bucket.start_link([])
-#       {:reply, Map.put(names, name, bucket), names}
-#     end
-#   end
-# end
+  defprotocol Gin do
+    def get_id_name(id_or_name, id_name)
+  end
+
+  defimpl Gin, for: BitString do
+    def get_id_name(name, id_name) do
+      Enum.find(id_name, fn {_key, val} -> val == name end)
+    end
+  end
+
+  defimpl Gin, for: Integer do
+    def get_id_name(id, id_name) do
+      Enum.find(id_name, fn {key, _val} -> key == id end)
+    end
+  end
+
+  defp new_id(ids) do
+    # !! Naive way !!
+    # Should check for:
+    # - duplicated entry !
+    # - Strictly positive entry !
+    # - choose the lowest available ??
+    if ids == %{} do
+      1000
+    else
+      Map.keys(ids)
+      |> Enum.max()
+      |> (fn x -> x + 1000 end).()
+    end
+  end
+end

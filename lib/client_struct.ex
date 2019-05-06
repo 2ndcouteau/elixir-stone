@@ -1,6 +1,7 @@
 defmodule ClientStruct do
   defstruct name: "unknown",
-            id: "000001",
+            id: "0001000",
+            # Should be {CODE 986, NAME "BRL"}
             main_currency: "BRL",
-            wallets: %{BRL: 0}
+            wallets: %{986 => 0}
 end
