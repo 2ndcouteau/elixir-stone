@@ -6,18 +6,15 @@ defmodule FSTest do
     %{registry: registry}
   end
 
-  test "Create Client", %{registry: _registry} do
-    # assert FS.Registry.fetch(registry, "toto") == :error
+  test "Create Client with name", %{registry: registry} do
+    assert FS.Registry.fetch(registry, "toto") == []
 
-    {client_pid, id} = FS.cc("toto", "EUR")
-
-    # = FS.Registry.fetch(registry, "toto")
+    assert {client_pid, id} = FS.Registry.create_client(registry, "toto")
+    assert FS.Clients.put(client_pid, "toto", id, 986, 4242)
 
     assert FS.Clients.get(client_pid, :name) == "toto"
     assert FS.Clients.get(client_pid, :id) == id
-    assert FS.Clients.get(client_pid, :main_currency) == "EUR"
-    #
-    # assert {:ok, client} = FS.Registry.lookup(registry, "toto")
-    #
+    assert FS.Clients.get(client_pid, :main_currency) == 986
+    # assert FS.Clients.get(client_pid, :wallet) == %{986 => 4242}
   end
 end
