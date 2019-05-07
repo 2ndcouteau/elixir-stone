@@ -19,8 +19,8 @@ defmodule FS.Registry do
 
   Returns `{:ok, pid}` if the bucket exists, `:error` otherwise.
   """
-  def fetch(server, name) do
-    GenServer.call(server, {:fetch, name})
+  def fetch(server, id_or_name) do
+    GenServer.call(server, {:fetch, id_or_name})
   end
 
   @doc """
@@ -49,10 +49,11 @@ defmodule FS.Registry do
   @doc """
   Fetch the pid of the `name` process in the `registry` state.
   """
-  def handle_call({:fetch, name_or_id}, _from, {ids, refs, id_name}) do
-    {id, name} = FS.Registry.Gin.get_id_name(name_or_id, id_name)
-    {_, client_pid} = Map.fetch(ids, id)
-    {:reply, {client_pid, id, name}, {ids, refs, id_name}}
+  def handle_call({:fetch, id_or_name}, _from, {ids, refs, id_name}) do
+    list = FS.Registry.Gin.get_id_name(id_or_name, id_name)
+    new_list = merge_client_infos(list, [], ids)
+
+    {:reply, new_list, {ids, refs, id_name}}
   end
 
   def handle_call({:create_client, name}, _from, {ids, refs, id_name}) do
@@ -84,14 +85,24 @@ defmodule FS.Registry do
 
   defimpl Gin, for: BitString do
     def get_id_name(name, id_name) do
-      Enum.find(id_name, fn {_key, val} -> val == name end)
+      Enum.filter(id_name, fn {_key, value} -> value == name end)
     end
   end
 
   defimpl Gin, for: Integer do
     def get_id_name(id, id_name) do
-      Enum.find(id_name, fn {key, _val} -> key == id end)
+      Enum.filter(id_name, fn {key, _value} -> key == id end)
     end
+  end
+
+  defp merge_client_infos(list, new_list, _ids) when list == [] do
+    new_list
+  end
+
+  defp merge_client_infos(list, new_list, ids) do
+    {{key, value}, list} = List.pop_at(list, 0)
+    {_, client_pid} = Map.fetch(ids, key)
+    merge_client_infos(list, [{client_pid, key, value}] ++ new_list, ids)
   end
 
   defp new_id(ids) do

@@ -8,7 +8,7 @@ defmodule FS do
   """
 
   # def create_client(name, main_currency \\ "USD", amount_deposited \\ 0) do
-  def cc(name, main_currency \\ "USD", amount_deposited \\ 0) do
+  def cc(name, main_currency \\ 986, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
     FS.Clients.put(client_pid, name, id, main_currency, amount_deposited)
   end
