@@ -22,13 +22,11 @@ defmodule FS.Clients do
     main_currency: "BRL",
     wallets: %{BRL: 0}
   """
-  def put(client_pid, name, id, main_currency, _amount_deposited) do
+  def put(client_pid, name, id, main_currency, amount_deposited) do
     Agent.update(client_pid, &Map.put(&1, :name, name))
     Agent.update(client_pid, &Map.put(&1, :id, id))
     Agent.update(client_pid, &Map.put(&1, :main_currency, main_currency))
-
-    # first_wallet = init_wallet(main_currency, amount_deposited)
-    # Agent.update(client_pid, &Map.put(&1, :wallet, first_wallet))
+    Agent.update(client_pid, &Map.put(&1, :wallet, {main_currency, amount_deposited}))
   end
 
   @doc """
@@ -40,7 +38,7 @@ defmodule FS.Clients do
     Agent.get_and_update(pid, &Map.pop(&1, key))
   end
 
-  defp init_wallet(main_currency, amount_deposited) do
-    {main_currency, amount_deposited}
-  end
+  # defp init_wallet(main_currency, amount_deposited) do
+  #   {main_currency, amount_deposited}
+  # end
 end
