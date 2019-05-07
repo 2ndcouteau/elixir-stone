@@ -28,11 +28,11 @@
 		- [x] name
 		- [x] id
 		- [x] main_currency
-		- [x] default_wallet
+		- [] default_wallet
 	- [x] ID usage identification
 	- [x] Can fetch informations of client from his ID
-	- [] Can fetch informations of clients from names
-		- [] Find a way to return multiple value from List in get_id_name(name, id_name)
+	- [x] Can fetch informations of clients from names
+		- [x] Find a way to return multiple value from List in get_id_name(name, id_name)
 ---
 
 ### <u>Function:
@@ -153,6 +153,13 @@
 - Add Elixir linter in Atom
 - Format command executed for each save on '.ex' and '.exs' files
 
+---
+### <u>Test:
+- Tests FS
+	- Create Client
+- Tests Registry
+	- Create_client
+	- Fetch
 ---
 ### <u>Documentation:
 - Read documentation about Stoneco best practice
