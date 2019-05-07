@@ -15,6 +15,6 @@ defmodule FSTest do
     assert FS.Clients.get(client_pid, :name) == "toto"
     assert FS.Clients.get(client_pid, :id) == id
     assert FS.Clients.get(client_pid, :main_currency) == 986
-    # assert FS.Clients.get(client_pid, :wallet) == %{986 => 4242}
+    assert FS.Clients.get(client_pid, :wallet) == {986, 4242}
   end
 end
