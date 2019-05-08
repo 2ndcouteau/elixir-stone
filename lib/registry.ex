@@ -15,19 +15,26 @@ defmodule FS.Registry do
   end
 
   @doc """
-  Looks up the bucket pid for `name` stored in `server`.
+  Looks up the bucket pid for `id` or `name` stored in `server`.
 
-  Returns `{:ok, pid}` if the bucket exists, `:error` otherwise.
+  Returns a list of `{client_pid, id, name}` if the bucket exists, `:error` otherwise.
   """
   def fetch(server, id_or_name) do
     GenServer.call(server, {:fetch, id_or_name})
   end
 
   @doc """
-  Ensures there is a bucket associated with the given `name` in `server`.
+  Ensures there is a bucket associated with the given `name` in `registry`.
   """
   def create_client(server, name) do
     GenServer.call(server, {:create_client, name})
+  end
+
+  @doc """
+  Delete the bucket associated with the given `id` in the `registry`.
+  """
+  def delete_client(server, id) do
+    GenServer.call(server, {:delete_client, id})
   end
 
   @doc """
@@ -65,6 +72,15 @@ defmodule FS.Registry do
     refs = Map.put(refs, ref, id)
 
     id_name = [{id, name}] ++ id_name
+    {:reply, {client_pid, id}, {ids, refs, id_name}}
+  end
+
+  def handle_call({:delete_client, id}, _from, {ids, refs, id_name}) do
+    {ref, _id} = Enum.find(refs, fn {_key, value} -> value == id end)
+    {id, refs} = Map.pop(refs, ref)
+    {client_pid, ids} = Map.pop(ids, id)
+    id_name = List.keydelete(id_name, id, 0)
+    DynamicSupervisor.terminate_child(FS.ClientsSupervisor, client_pid)
     {:reply, {client_pid, id}, {ids, refs, id_name}}
   end
 

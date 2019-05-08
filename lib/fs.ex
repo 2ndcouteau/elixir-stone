@@ -7,16 +7,26 @@ defmodule FS do
   money conversion
   """
 
-  # def create_client(name, main_currency \\ "USD", amount_deposited \\ 0) do
-  def cc(name, main_currency \\ 986, amount_deposited \\ 0) do
+  @doc """
+  Create a new client with a `name`
+
+  return the `pid` and the unique `id` of the client
+  """
+  def create_client(name, main_currency \\ 986, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
     FS.Clients.put(client_pid, name, id, main_currency, amount_deposited)
+    IO.puts("The client account of #{name}:#{inspect(id)} has been created")
+    {client_pid, id}
   end
 
-  #
-  # def delete_client(client_id) do
-  #   true
-  # end
+  @doc """
+  Delete the client identified by his unique `id`
+  """
+  def delete_client(client_id) do
+    {_client_pid, id} = FS.Registry.delete_client(Register, client_id)
+    IO.puts("The client account #{inspect(id)} has been deleted")
+  end
+
   #
   # def create_wallet(client_id, currency, value \\ 0) do
   #   true
