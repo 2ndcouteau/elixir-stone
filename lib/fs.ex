@@ -34,6 +34,25 @@ defmodule FS do
     {id, currency, amount_deposited}
   end
 
+  def delete_wallet(client_id, currency) do
+    client = FS.Registry.fetch(Register, client_id)
+    {:ok, {client_pid, _id, _name}} = Enum.fetch(client, 0)
+
+    case FS.Clients.delete_wallet(client_pid, currency) do
+      :ok ->
+        IO.puts("The client wallet #{inspect(currency)} has been deleted")
+        :ok
+
+      :not_empty ->
+        IO.puts("The client wallet #{inspect(currency)} is not empty")
+        :not_empty
+
+      :not_exist ->
+        IO.puts("The client wallet #{inspect(currency)} does not exist")
+        :not_exist
+    end
+  end
+
   #
   # def transfert(client_id, to_client_id, value, currency, direct_conversion \\ true) do
   #   # if the currency is not available in the to_client %{wallet} and the direct_conversion is_false

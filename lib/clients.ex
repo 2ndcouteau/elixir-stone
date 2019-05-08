@@ -35,6 +35,23 @@ defmodule FS.Clients do
     Agent.update(client_pid, &Map.put(&1, :wallets, new_wallets))
   end
 
+  def delete_wallet(client_pid, currency) do
+    old_wallets = FS.Clients.get(client_pid, :wallets)
+
+    case Map.get(old_wallets, currency) do
+      0 ->
+        new_wallets = Map.delete(old_wallets, currency)
+        Agent.update(client_pid, &Map.put(&1, :wallets, new_wallets))
+        :ok
+
+      nil ->
+        :not_exist
+
+      _ ->
+        :not_empty
+    end
+  end
+
   @doc """
   Deletes `key` from `bucket`.
 
