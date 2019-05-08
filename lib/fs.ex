@@ -14,7 +14,7 @@ defmodule FS do
   """
   def create_client(name, main_currency \\ 986, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
-    FS.Clients.put(client_pid, name, id, main_currency, amount_deposited)
+    FS.Clients.put_new_client_infos(client_pid, name, id, main_currency, amount_deposited)
     IO.puts("The client account of #{name}:#{inspect(id)} has been created")
     {client_pid, id}
   end
@@ -27,10 +27,13 @@ defmodule FS do
     IO.puts("The client account #{inspect(id)} has been deleted")
   end
 
-  #
-  # def create_wallet(client_id, currency, value \\ 0) do
-  #   true
-  # end
+  def create_wallet(client_id, currency, amount_deposited \\ 0) do
+    client = FS.Registry.fetch(Register, client_id)
+    {:ok, {client_pid, id, _name}} = Enum.fetch(client, 0)
+    FS.Clients.put_new_wallet(client_pid, currency, amount_deposited)
+    {id, currency, amount_deposited}
+  end
+
   #
   # def transfert(client_id, to_client_id, value, currency, direct_conversion \\ true) do
   #   # if the currency is not available in the to_client %{wallet} and the direct_conversion is_false
