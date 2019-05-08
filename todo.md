@@ -21,28 +21,17 @@
 			- https://currencylayer.com/
 			- https://openexchangerates.org/
 
-- [] Clients
-	- [x] Create process for each new client
-	- [x] Save him in the Registry state
-	- [x] Feel informations in the client state
-		- [x] name
-		- [x] id
-		- [x] main_currency
-		- [] default_wallet
-	- [x] ID usage identification
-	- [x] Can fetch informations of client from his ID
-	- [x] Can fetch informations of clients from names
-		- [x] Find a way to return multiple value from List in get_id_name(name, id_name)
 ---
 
 ### <u>Function:
 - [x] create_client(name, main_currency \\ "BRL")
 	- Presently named `cc`
-- [] Create a wallet by default with an `amount_deposited`
+- [x] delete_client(client_id)
+- [x] Create a wallet by default with an `amount_deposited`
 	- Update nested Map in Struct
 	- Init Currency with the `main_currency`
-- [] create_wallet(client_id, currency, deposit \\ 0)
-- [] delete_client(client_id)
+- [x] create_wallet(client_id, currency, deposit \\ 0)
+- [] Delete wallet, only if empty -> value == 0
 - [] transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
 - [] multi_transfert(client, {to_clients}, value, currency, direct_conversion \\ :true)
 - [] conversion(client, value, from_currency, to_currency)
@@ -124,6 +113,18 @@
 
 #### Test Stone Challenge Financial-System
 - Init the project
+- [x] Clients
+	- [x] Create process for each new client
+	- [x] Save him in the Registry state
+	- [x] Feel informations in the client state
+		- [x] name
+		- [x] id
+		- [x] main_currency
+		- [x] default_wallet
+	- [x] ID usage identification
+	- [x] Can fetch informations of client from his ID
+	- [x] Can fetch informations of clients from names
+		- [x] Find a way to return multiple value from List in get_id_name(name, id_name)
 
 #### Test Programs
 - "Hello World" Elixir
