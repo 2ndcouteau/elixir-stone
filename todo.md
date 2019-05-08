@@ -15,12 +15,22 @@
 - [] Fetch currency conversion value
 	- First and simple way:
 		- [] Hard encoded conversion value
+			- use Poison for JSON
+				- {:poison, "~> 4.0.1"},
 	- or:
 		- [] Extern API usage
-			- https://fixer.io/
-			- https://currencylayer.com/
-			- https://openexchangerates.org/
+			- https://fixer.io/ (free)
+			- https://currencylayer.com/ (free)
+			- https://openexchangerates.org/ (paid)
+		- Good ressources :
+			- Simple request:
+				- https://github.com/edgurgel/httpoison
+				- https://stackoverflow.com/questions/46633620/make-http-request-with-elixir-and-phoenix
 
+			- Subscribe/Sockets
+				- https://www.poeticoding.com/realtime-market-data-updates-with-elixir/
+				- {:websockex, "~> 0.4.2"},
+				- {:poison, "~> 4.0.1"},
 ---
 
 ### <u>Function:
