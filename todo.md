@@ -31,8 +31,20 @@
 				- https://www.poeticoding.com/realtime-market-data-updates-with-elixir/
 				- {:websockex, "~> 0.4.2"},
 				- {:poison, "~> 4.0.1"},
+
+- client.ex
+	- put_new_wallet(client_pid, currency, amount_deposited)
+	If a wallet already exist, need to decide if:
+		- Nothing happened, and an error: :already_exist if return
+			- Actual solution
+		- The wallet if update and the amount_deposited is added to the previous
+			- Possible new solution
 ---
 
+### <u>Chore:
+
+
+---
 ### <u>Function:
 - [x] Create_client(name, main_currency \\ "BRL")
 	- Presently named `cc`
@@ -136,6 +148,8 @@
 	- [x] Can fetch informations of clients from names
 		- [x] Find a way to return multiple value from List in get_id_name(name, id_name)
 
+- Add spec to all functions -- Have to continue until the end
+
 #### Test Programs
 - "Hello World" Elixir
 - "Hello World" Elixir Script
@@ -154,6 +168,9 @@
 - Add rule in CircleCi to check format
 - [“mix format --check-formatted”](https://hexdocs.pm/mix/Mix.Tasks.Format.html)
 - Reactivate CircleCi on the master branch
+
+- [x] Dialyxir integration
+- [x] Remove useless warning for protocol GIN in registry.ex
 
 #### Git
 - Create a dev git branch
