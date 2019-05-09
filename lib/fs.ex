@@ -12,6 +12,7 @@ defmodule FS do
 
   return the `pid` and the unique `id` of the client
   """
+  @spec create_client(String.t(), integer(), integer()) :: {pid(), integer()}
   def create_client(name, main_currency \\ 986, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
     FS.Clients.put_new_client_infos(client_pid, name, id, main_currency, amount_deposited)
@@ -22,11 +23,14 @@ defmodule FS do
   @doc """
   Delete the client identified by his unique `id`
   """
+  @spec delete_client(integer()) :: :ok
   def delete_client(client_id) do
     {_client_pid, id} = FS.Registry.delete_client(Register, client_id)
     IO.puts("The client account #{inspect(id)} has been deleted")
+    :ok
   end
 
+  @spec create_wallet(integer(), integer(), integer()) :: {integer(), integer(), integer()}
   def create_wallet(client_id, currency, amount_deposited \\ 0) do
     client = FS.Registry.fetch(Register, client_id)
     {:ok, {client_pid, id, _name}} = Enum.fetch(client, 0)
@@ -34,6 +38,7 @@ defmodule FS do
     {id, currency, amount_deposited}
   end
 
+  @spec delete_wallet(integer(), integer()) :: atom()
   def delete_wallet(client_id, currency) do
     client = FS.Registry.fetch(Register, client_id)
     {:ok, {client_pid, _id, _name}} = Enum.fetch(client, 0)
