@@ -9,7 +9,6 @@
 	- [x] Create a registry
 	- [x] Create a DynamicSupervisor for Clients
 	- [x] Create first rules for Clients
-	- [] a Stack ?
 	- [] Find a way to fetch conversion values
 
 - [] Fetch currency conversion value
@@ -54,9 +53,22 @@
 	- Init Currency with the `main_currency`
 - [x] Create_wallet(client_id, currency, deposit \\ 0)
 - [x] Delete wallet, only if empty -> value == 0
-- [] Transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
-- [] Multi_transfert(client, {to_clients}, value, currency, direct_conversion \\ :true)
-- [] Conversion(client, value, from_currency, to_currency)
+
+- [] Transfert()
+	- transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
+	- transfert(account_id, to_account_id , value)
+		- account_id == client_id + currency_code
+	- transfert(client_id, wallet, to_wallet, value)
+		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
+
+- [] Multi_transfert
+	- [] multi_transfert(client, [to_clients], value, currency, direct_conversion \\ :true)
+	- [] multi_transfert(account_id, [to_account_id], value)
+		- account_id == client_id + currency_code
+	- [] multi_transfert([client_id], wallet, to_wallet, value)
+		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
+
+- [] Conversion(value, from_currency, to_currency)
 
 
 ### <u>Structure:
@@ -149,6 +161,9 @@
 		- [x] Find a way to return multiple value from List in get_id_name(name, id_name)
 
 - Add spec to all functions -- Have to continue until the end
+- Add [decimal_arithmetic](https://hex.pm/packages/decimal_arithmetic)
+	- Get [decimal](https://hex.pm/packages/decimal) automatically
+
 
 #### Test Programs
 - "Hello World" Elixir
