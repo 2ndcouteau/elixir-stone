@@ -48,6 +48,18 @@ mix dialyzer
 Some errors are ignored. You can find more details about them in the file
 `.dialyzer_ignore` in the root of the project.
 
+Finally, you can generate the documentation with:
+```
+mix docs
+```
+That will generate a folder doc with all the documentation available from the
+@doc/@docmodule attributes in the code.
+
+##### Notes:
+- The key API is available in the git repository for a convenient access as part
+of this exercise.
+The `secret` folder should normally be exclude in the .gitignore configuration
+file.
 ---
 
 ##### Resources:
