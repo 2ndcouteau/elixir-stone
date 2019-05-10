@@ -12,8 +12,10 @@ defmodule FS do
 
   return the `pid` and the unique `id` of the client
   """
+  use FS.Fixer_API
+
   @spec create_client(String.t(), integer(), integer()) :: {pid(), integer()}
-  def create_client(name, main_currency \\ 986, amount_deposited \\ 0) do
+  def create_client(name, main_currency \\ 978, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
     FS.Clients.put_new_client_infos(client_pid, name, id, main_currency, amount_deposited)
     IO.puts("The client account of #{name}:#{inspect(id)} has been created")

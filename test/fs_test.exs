@@ -30,11 +30,11 @@ defmodule FSTest do
 
   test "Create New wallet", %{registry: _registry} do
     assert {client_pid, id} = FS.create_client("toto")
-    assert FS.Clients.get(client_pid, :wallets) == %{986 => 0}
-    assert {id, currency, amount_deposited} = FS.create_wallet(id, 978, 1234)
+    assert FS.Clients.get(client_pid, :wallets) == %{978 => 0}
+    assert {id, currency, amount_deposited} = FS.create_wallet(id, 986, 1234)
 
     assert FS.Clients.get(client_pid, :wallets)
-           |> Map.get(978) == 1234
+           |> Map.get(986) == 1234
 
     assert FS.delete_client(id)
     Supervisor.terminate_child(FS.Supervisor, Register)
@@ -42,14 +42,14 @@ defmodule FSTest do
 
   test "Delete wallet", %{registry: _registry} do
     assert {client_pid, id} = FS.create_client("toto")
-    assert FS.Clients.get(client_pid, :wallets) == %{986 => 0}
-    assert {id, currency, amount_deposited} = FS.create_wallet(id, 978, 1234)
+    assert FS.Clients.get(client_pid, :wallets) == %{978 => 0}
+    assert {id, currency, amount_deposited} = FS.create_wallet(id, 986, 1234)
 
-    assert FS.delete_wallet(id, 978) == :not_empty
-    assert FS.delete_wallet(id, 986) == :ok
+    assert FS.delete_wallet(id, 986) == :not_empty
+    assert FS.delete_wallet(id, 978) == :ok
     assert FS.delete_wallet(id, 123) == :not_exist
 
-    assert FS.Clients.get(client_pid, :wallets) == %{978 => 1234}
+    assert FS.Clients.get(client_pid, :wallets) == %{986 => 1234}
 
     assert FS.delete_client(id)
     Supervisor.terminate_child(FS.Supervisor, Register)
