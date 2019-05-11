@@ -27,6 +27,7 @@ defmodule FinancialSystem.MixProject do
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
       {:decimal_arithmetic, "~> 0.1.2"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       # {:named_args, "~> 0.1.0"}
     ]
   end
