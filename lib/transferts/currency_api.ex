@@ -8,6 +8,10 @@ defmodule Currency_API do
   """
   use FS.Fixer_API
 
+  @type p_decode :: nil | true | false | list() | float() | integer() | String.t() | map()
+
+  @spec get_exchange_rate() ::
+          {:ok, any()} | {:error, Poison.ParseError.t() | Poison.DecodeError.t()}
   def get_exchange_rate() do
     url = "http://data.fixer.io/api/latest?access_key=#{@key_api}"
 
@@ -35,6 +39,7 @@ defmodule Currency_API do
   "Minor unit": "2"
   ```
   """
+  @spec get_iso_ref() :: p_decode()
   def get_iso_ref() do
     if File.exists?("lib/transferts/resources/ISO_4217_reference.json") do
       iso_ref = get_all_json("lib/transferts/resources/ISO_4217_reference.json")
@@ -49,6 +54,7 @@ defmodule Currency_API do
 
   In the normal process, these informations are fetch directly on the `fixer.io` API.
   """
+  @spec get_last_conversions :: p_decode()
   def get_last_conversions() do
     last_conversions = get_all_json("lib/transferts/resources/last_conversions.json")
     last_conversions
@@ -60,6 +66,7 @@ defmodule Currency_API do
 
   Return a list of tuple of [{numeric name, alphabetic name}]
   """
+  @spec get_available_currencies(list(), list()) :: list({String.t(), String.t()})
   def get_available_currencies(iso_ref, last_conversions) do
     # available_currencies = Currency_API.get_all_json("lib/transferts/resources/common_list_name_code.json")
     last_conversions_names =
@@ -90,6 +97,7 @@ defmodule Currency_API do
   @doc """
   Read and return a json file in a usable format.
   """
+  @spec get_all_json(String.t()) :: p_decode
   def get_all_json(path_file) do
     read_file(path_file)
     |> Poison.decode!()
