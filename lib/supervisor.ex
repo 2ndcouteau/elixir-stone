@@ -8,7 +8,8 @@ defmodule FS.Supervisor do
   def init(:ok) do
     children = [
       {DynamicSupervisor, name: FS.ClientsSupervisor, strategy: :one_for_one},
-      {FS.Registry, name: Register}
+      {FS.Registry, name: Register},
+      {FS.Transfert, name: Transfert}
     ]
 
     Supervisor.init(children, strategy: :one_for_all)
