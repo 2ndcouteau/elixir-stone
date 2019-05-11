@@ -12,7 +12,6 @@ defmodule FS do
 
   return the `pid` and the unique `id` of the client
   """
-  use FS.Fixer_API
 
   @spec create_client(String.t(), integer(), integer()) :: {pid(), integer()}
   def create_client(name, main_currency \\ 978, amount_deposited \\ 0) do
