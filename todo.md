@@ -2,33 +2,43 @@
 
 ### Feat:
 #### Test Stone Challenge Financial-System
-- [] Define all upstream needs
-
 - [] Create the whole architecture
 	- [x] Create a supervisor
 	- [x] Create a registry
 	- [x] Create a DynamicSupervisor for Clients
 	- [x] Create first rules for Clients
 	- [] Find a way to fetch conversion values
+		- In progress
 
 - [] Fetch currency conversion value
 	- First and simple way:
-		- [] Hard encoded conversion value
+		- [x] Hard encoded conversion value
 			- use Poison for JSON
 				- {:poison, "~> 4.0.1"},
+		[] Use a rescue system if API is not available.
+			- [x] Get information from backup json file
+			- [] Update the backup file when new API are available
+				- check timestamp
 	- or:
 		- [] Extern API usage
-			- https://fixer.io/ (free)
-			- https://currencylayer.com/ (free)
-			- https://openexchangerates.org/ (paid)
+			- https://fixer.io/ (free -- EUR)
+				- [x] API_key use
+				- [x] Save the api_key in a `secret` folder
+				- [x] Make request on API
+				- [x] Get information a save it in the Transfert GenServer State
+				- [] Save update informations in a backup file, cf `First way`
+			<!-- - https://currencylayer.com/ (free -- USD)
+			- https://openexchangerates.org/ (paid) -->
 		- Good ressources :
 			- Simple request:
 				- https://github.com/edgurgel/httpoison
 				- https://stackoverflow.com/questions/46633620/make-http-request-with-elixir-and-phoenix
 
 			- Subscribe/Sockets
+				- No need, the Fixer.API do not provide a pure realtime update
+				system.
 				- https://www.poeticoding.com/realtime-market-data-updates-with-elixir/
-				- {:websockex, "~> 0.4.2"},
+				<!-- - {:websockex, "~> 0.4.2"}, -->
 				- {:poison, "~> 4.0.1"},
 
 - client.ex
@@ -40,10 +50,18 @@
 			- Possible new solution
 ---
 
+### <u>Tests:
+
+- Provide more test for the Transfert part
+- Provide more test for the Currency_API part
+
+---
+
 ### <u>Chore:
 
 
 ---
+
 ### <u>Function:
 - [x] Create_client(name, main_currency \\ "BRL")
 	- Presently named `cc`
