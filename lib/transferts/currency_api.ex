@@ -10,8 +10,7 @@ defmodule Currency_API do
 
   @type p_decode :: nil | true | false | list() | float() | integer() | String.t() | map()
 
-  @spec get_exchange_rate() ::
-          {:ok, any()} | {:error, Poison.ParseError.t() | Poison.DecodeError.t()}
+  @spec get_exchange_rate() :: any()
   def get_exchange_rate() do
     url = "http://data.fixer.io/api/latest?access_key=#{@key_api}"
 
@@ -66,7 +65,7 @@ defmodule Currency_API do
 
   Return a list of tuple of [{numeric name, alphabetic name}]
   """
-  @spec get_available_currencies(list(), list()) :: list({String.t(), String.t()})
+  @spec get_available_currencies([tuple()], map()) :: [any()]
   def get_available_currencies(iso_ref, last_conversions) do
     # available_currencies = Currency_API.get_all_json("lib/transferts/resources/common_list_name_code.json")
     last_conversions_names =
