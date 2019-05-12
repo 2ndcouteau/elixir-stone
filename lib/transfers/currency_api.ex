@@ -40,8 +40,8 @@ defmodule Currency_API do
   """
   @spec get_iso_ref() :: p_decode()
   def get_iso_ref() do
-    if File.exists?("lib/transferts/resources/ISO_4217_reference.json") do
-      iso_ref = get_all_json("lib/transferts/resources/ISO_4217_reference.json")
+    if File.exists?("lib/transfers/resources/ISO_4217_reference.json") do
+      iso_ref = get_all_json("lib/transfers/resources/ISO_4217_reference.json")
       iso_ref
     else
       get_exchange_rate()
@@ -55,7 +55,7 @@ defmodule Currency_API do
   """
   @spec get_last_conversions :: p_decode()
   def get_last_conversions() do
-    last_conversions = get_all_json("lib/transferts/resources/last_conversions.json")
+    last_conversions = get_all_json("lib/transfers/resources/last_conversions.json")
     last_conversions
   end
 
