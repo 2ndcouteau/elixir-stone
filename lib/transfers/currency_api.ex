@@ -77,7 +77,8 @@ defmodule Currency_API do
 
     iso_ref_names =
       Enum.map(iso_ref, fn map ->
-        {Map.get(map, "Numeric Code"), Map.get(map, "Alphabetic Code")}
+        {Map.get(map, "Numeric Code"), Map.get(map, "Alphabetic Code"),
+         Map.get(map, "Minor unit")}
       end)
       |> Enum.sort()
       |> Enum.uniq()
@@ -85,7 +86,9 @@ defmodule Currency_API do
     # |> IO.inspect(label: "iso_ref", limit: :infinity)
 
     available_currencies =
-      Enum.filter(iso_ref_names, fn {_num, name} -> Enum.member?(last_conversions_names, name) end)
+      Enum.filter(iso_ref_names, fn {_num, name, _unit} ->
+        Enum.member?(last_conversions_names, name)
+      end)
       |> Enum.sort()
 
     # |> IO.inspect(label: "available_currencies", limit: :infinity)

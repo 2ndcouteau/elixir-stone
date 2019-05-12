@@ -94,9 +94,12 @@ defmodule FS.Transfert do
   # end
 
   def handle_call({:get_one_code, code}, _from, {iso_ref, last_conversions, available_currencies}) do
-    case Enum.find(available_currencies, fn {num, name} -> num == code || name == code end) do
-      {alpha_code, numeric_code} ->
-        {:reply, {alpha_code, numeric_code}, {iso_ref, last_conversions, available_currencies}}
+    case Enum.find(available_currencies, fn {num, name, _minor_unit} ->
+           num == code || name == code
+         end) do
+      {alpha_code, numeric_code, minor_unit} ->
+        {:reply, {alpha_code, numeric_code, minor_unit},
+         {iso_ref, last_conversions, available_currencies}}
 
       _ ->
         {:reply, {:error, "Currency unavailable"},

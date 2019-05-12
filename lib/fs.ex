@@ -59,6 +59,22 @@ defmodule FS do
     end
   end
 
+  #   - [] Transfert()
+  # 	- transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
+  # 	- transfert(account_id, to_account_id , value)
+  # 		- account_id == client_id + currency_code
+  # 	- transfert(client_id, wallet, to_wallet, value)
+  # 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
+  #
+  # - [] Multi_transfert
+  # 	- [] multi_transfert(client, [to_clients], value, currency, direct_conversion \\ :true)
+  # 	- [] multi_transfert(account_id, [to_account_id], value)
+  # 		- account_id == client_id + currency_code
+  # 	- [] multi_transfert([client_id], wallet, to_wallet, value)
+  # 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
+  #
+  # - [] Conversion(value, from_currency, to_currency)
+
   #
   # def transfert(client_id, to_client_id, value, currency, direct_conversion \\ true) do
   #   # if the currency is not available in the to_client %{wallet} and the direct_conversion is_false
