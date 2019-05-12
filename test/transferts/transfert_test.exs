@@ -11,8 +11,8 @@ defmodule FS.TransfertTest do
   # end
   #
   test "Get one currency code couple", %{registry: registry} do
-    assert FS.Transfert.get_one_code(registry, "USD") == {"840", "USD"}
-    assert FS.Transfert.get_one_code(registry, "840") == {"840", "USD"}
+    assert FS.Transfert.get_one_code(registry, "USD") == {"840", "USD", "2"}
+    assert FS.Transfert.get_one_code(registry, "840") == {"840", "USD", "2"}
     assert FS.Transfert.get_one_code(registry, "000") == {:error, "Currency unavailable"}
   end
 end
