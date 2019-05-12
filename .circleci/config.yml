@@ -25,6 +25,9 @@ jobs:
             name: Check if all files are well formatted -- If failed, exit.
             command: mix format --check-formatted
         - run:
+            name: Install Hex locally
+            command: mix local.hex --force
+        - run:
             name: Gets all out of date dependencies
             command: mix deps.get
         # - run:
