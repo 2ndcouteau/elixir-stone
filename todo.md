@@ -10,6 +10,17 @@
 	- [] Find a way to fetch conversion values
 		- In progress
 
+- Architecture: ~~
+	- Supervisor
+		- Client Registry
+		- DynamicSupervisor
+			- Client
+		- Transfer Registry
+		- DynamicSupervisor
+			- Transfers
+			- Currencies API
+
+
 - [] Fetch currency conversion value
 	- First and simple way:
 		- [x] Hard encoded conversion value
