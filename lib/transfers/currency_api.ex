@@ -1,8 +1,8 @@
 defmodule Currency_API do
   @moduledoc """
+  All about currencies.
   Management functions for the currency API.
-
-  Let us get "Real time values" of the current currencies
+  Let us get "Real time values" of the current currencies.
 
   note: get @api_key from the `FS.Fixer_API`
   """
@@ -18,13 +18,6 @@ defmodule Currency_API do
     req = Poison.decode!(response.body)
     req
   end
-
-  # @spec get_key_json(String.t(), )
-  # def get_key_json(path_file, key) do
-  #   read_file(path_file)
-  #   |> Poison.decode!(key)
-  #   |> IO.inspect()
-  # end
 
   @doc """
   Get the informations of the ISO_4217 reference file.
@@ -97,7 +90,7 @@ defmodule Currency_API do
   end
 
   @doc """
-  Read and return a json file in a usable format.
+  Read and return a json file in an usable format.
   """
   @spec get_all_json(String.t()) :: p_decode
   def get_all_json(path_file) do
