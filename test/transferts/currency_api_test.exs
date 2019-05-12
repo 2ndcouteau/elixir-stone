@@ -2,7 +2,7 @@ defmodule Currency_APITest do
   use ExUnit.Case
 
   setup do
-    registry = start_supervised!(FS.Transfert)
+    registry = start_supervised!(FS.Transfer)
     %{registry: registry}
   end
 
@@ -13,4 +13,11 @@ defmodule Currency_APITest do
 
     assert length(available_currencies) == 154
   end
+
+  # test "Conversion currencies", %{registry: _registry} do
+  #   assert Currency_API.conversion(100, "EUR", "USD")
+  #   assert Currency_API.conversion(100, 978, 840)
+  #   assert Currency_API.conversion(100, "EUR", 840)
+  #   assert Currency_API.conversion(100, 978, "USD")
+  # end
 end

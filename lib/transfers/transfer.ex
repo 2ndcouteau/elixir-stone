@@ -1,4 +1,5 @@
 defmodule FS.Transfert do
+defmodule FS.Transfer do
   @moduledoc """
   Transfert client/server
 
