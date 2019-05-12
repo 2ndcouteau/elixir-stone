@@ -1,4 +1,3 @@
-defmodule FS.Transfert do
 defmodule FS.Transfer do
   @moduledoc """
   Transfert client/server
@@ -31,6 +30,53 @@ defmodule FS.Transfer do
   @spec get_one_code(GenServer.server(), integer() | String.t()) :: term()
   def get_one_code(server, code_ref) do
     GenServer.call(server, {:get_one_code, code_ref})
+  end
+
+  @doc """
+  Get the rate from the `number code` like "978" or `name code` like "EUR"
+
+  If the rates are out_dated, the rates are updated before return the requested rate.
+  """
+  @spec get_one_rate(GenServer.server(), integer() | String.t()) :: term()
+  def get_one_rate(server, code_ref) do
+    unless conversion_rates_up?(server) do
+      GenServer.call(server, {:update_rates})
+    end
+
+    GenServer.call(server, {:get_one_rate, code_ref})
+  end
+
+  @doc """
+  Get the minor unit from `iso_ref`
+
+  This number provide number of digits for rounding.
+
+  Exemple :
+  ```
+  iex> get_minor_unit(Transfer, "EUR")
+  > 2
+  ```
+  """
+  @spec get_minor_unit(GenServer.server(), integer() | String.t()) :: integer()
+  def get_minor_unit(server, currency) do
+    GenServer.call(server, {:get_minor_unit, currency})
+  end
+
+  @doc """
+  Return a Boolean to know if the `last_conversions` are outdated.
+  This compare the timestamp in `last_conversion.json` and the `System.os_time()` + 1 hour
+  """
+  @spec conversion_rates_up?(GenServer.server()) :: bool()
+  def conversion_rates_up?(server) do
+    GenServer.call(server, {:conversion_rates_up?})
+  end
+
+  @doc """
+  Return the `base` from the `last_conversions` state elem.
+  """
+  @spec get_base(GenServer.server()) :: String.t()
+  def get_base(server) do
+    GenServer.call(server, {:get_base})
   end
 
   ## Server Callbacks
@@ -108,6 +154,47 @@ defmodule FS.Transfer do
     end
   end
 
+  def handle_call({:get_one_rate, code}, _from, {iso_ref, last_conversions, available_currencies}) do
+    case get_currency_infos(code, available_currencies) do
+      {:ok, _num, name, _minor} ->
+        rate =
+          Map.get(last_conversions, "rates")
+          |> Map.get(name)
+
+        {:reply, rate, {iso_ref, last_conversions, available_currencies}}
+
+      nil ->
+        {:reply, {:error, "Currency unavailable"},
+         {iso_ref, last_conversions, available_currencies}}
+    end
+  end
+
+  def handle_call({:get_base}, _from, {iso_ref, last_conversions, available_currencies}) do
+    base = Map.get(last_conversions, "base")
+    {:reply, base, {iso_ref, last_conversions, available_currencies}}
+  end
+
+  def handle_call(
+        {:conversion_rates_up?},
+        _from,
+        {iso_ref, last_conversions, available_currencies}
+      ) do
+    up? = Map.get(last_conversions, "timestamp") < System.os_time() / 1_000_000_000 - 3600
+
+    {:reply, up?, {iso_ref, last_conversions, available_currencies}}
+  end
+
+  def handle_call({:update_rates}, _from, {iso_ref, last_conversions, available_currencies}) do
+    response = Currency_API.get_exchange_rates()
+
+    if Map.get(response, "success") == true do
+      Currency_API.update_rescue_conversion_rates(response)
+      {:reply, {:ok}, {iso_ref, response, available_currencies}}
+    else
+      {:reply, {:error}, {iso_ref, last_conversions, available_currencies}}
+    end
+  end
+
   # def handle_call({:get_one_ref, code_ref}, _from, {iso_ref}) do
   #   if is_integer?(code_ref) do
   #     Enum.find(iso_ref, fn %{} -> Map.get() == id end)
@@ -116,5 +203,38 @@ defmodule FS.Transfer do
   #     Enum.filter(iso_ref, fn {key, _value} -> key == id end)
   #     |> IO.inspect()
   #   end
+  # end
+
+  def handle_call(
+        {:get_minor_unit, currency},
+        _from,
+        {iso_ref, last_conversions, available_currencies}
+      ) do
+    case get_currency_infos(currency, available_currencies) do
+      {:ok, _num, _name, minor} ->
+        minor_unit = minor
+        {:reply, minor_unit, {iso_ref, last_conversions, available_currencies}}
+
+      nil ->
+        {:reply, {:error, "Currency unavailable"},
+         {iso_ref, last_conversions, available_currencies}}
+    end
+  end
+
+  def get_currency_infos(code, available_currencies) do
+    code =
+      is_integer(code)
+      |> Integer.to_string(code)
+
+    Enum.find(available_currencies, fn {num, name, _minor} ->
+      code == num || code == name
+    end)
+  end
+
+  # @doc """
+  # Get the list of all country using this currency
+  # Return all available informations in iso_ref
+  # """
+  # get_all_currency_infos(code, iso_ref) do
   # end
 end
