@@ -72,9 +72,9 @@ defmodule Currency_APITest do
     assert is_list(Currency_API.init_available_currencies(iso_ref, last_conversions)) == true
   end
 
-  test "Number of available currencies", %{registry: _registry} do
-    assert iso_ref = Currency_API.init_iso_ref()
-    assert last_conversions = Currency_API.init_last_conversions()
+  test "Number of available currencies", %{registry: registry} do
+    assert iso_ref = FS.Transfer.get_iso_ref(registry)
+    assert last_conversions = FS.Transfer.get_last_conversions(registry)
 
     assert available_currencies =
              Currency_API.init_available_currencies(iso_ref, last_conversions)
@@ -88,10 +88,17 @@ defmodule Currency_APITest do
     assert Currency_API.get_all_json("Bad/Path") == {:error, :enoent}
   end
 
-  # test "Conversion currencies", %{registry: _registry} do
-  #   assert Currency_API.conversion(100, "EUR", "USD")
-  #   assert Currency_API.conversion(100, 978, 840)
-  #   assert Currency_API.conversion(100, "EUR", 840)
-  #   assert Currency_API.conversion(100, 978, "USD")
-  # end
+  test "Conversion currencies", %{registry: _registry} do
+    # Integer values
+    assert Currency_API.conversion(100, "EUR", "USD")
+    assert Currency_API.conversion(100, 978, 840)
+    assert Currency_API.conversion(100, "EUR", 840)
+    assert Currency_API.conversion(100, 978, "USD")
+
+    # Float values
+    assert Currency_API.conversion(100.0, "EUR", "USD")
+    assert Currency_API.conversion(100.0, 978, 840)
+    assert Currency_API.conversion(100.0, "EUR", 840)
+    assert Currency_API.conversion(100.0, 978, "USD")
+  end
 end
