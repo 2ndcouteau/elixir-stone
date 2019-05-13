@@ -4,9 +4,12 @@ defmodule Currency_API do
   Management functions for the currency API.
   Let us get "Real time values" of the current currencies.
 
-  note: get @api_key from the `FS.Fixer_API`
+  ##### Notes:
+    - get @api_key from the `FS.Fixer_API`
+    - Paths come from `FS.Path_Resources`
   """
   use FS.Fixer_API
+  use FS.Path_Resources
 
   @type p_decode :: nil | true | false | list() | float() | integer() | String.t() | map()
   @type currency :: integer() | String.t()
@@ -29,25 +32,74 @@ defmodule Currency_API do
   """
   @spec update_rescue_conversion_rates(String.t()) :: {atom()}
   def update_rescue_conversion_rates(new_rates) do
-    case IO.write("lib/transfers/resources/last_conversions.json", new_rates) do
-      {:ok} ->
-        {:ok}
+    {_, content} = Poison.encode(new_rates)
+
+    case File.write(@last_conversions, content) do
+      :ok ->
+        :ok
 
       {:error, reason} ->
-        IO.warn(reason)
-        {:error}
+        :file.format_error(reason)
+        |> List.to_string()
+        |> (&("Write: last_conversion.json: " <> &1)).()
+        |> exit()
     end
   end
 
   @doc """
-  Get the last conversions rates informations from the `rescue` file.
+  Get the last conversions rates informations.
 
-  In the normal process, these informations are fetch directly on the `fixer.io` API.
+  Check if information in rescue file are less than 1 hour old.
+  If true, take these informations.
+
+  Else make a request to the API for fresh information.
+  If it's failed, take informations from the rescue file
   """
-  @spec get_last_conversions :: p_decode()
-  def get_last_conversions() do
-    last_conversions = get_all_json("lib/transfers/resources/last_conversions.json")
-    last_conversions
+  @spec init_last_conversions :: p_decode()
+  def init_last_conversions() do
+    last_conversions = get_all_json(@last_conversions)
+
+    # If the file exists and is valid
+    if is_map(last_conversions) do
+      # if last_conversions is 1 hour old or more
+      case Map.get(last_conversions, "timestamp") < System.os_time() / 1_000_000_000 - 3600 do
+        false ->
+          last_conversions
+
+        true ->
+          response = get_exchange_rates()
+
+          case Map.get(response, "success") do
+            true ->
+              response
+
+            false ->
+              last_conversions
+          end
+      end
+    else
+      case last_conversions do
+        # The file does not exist
+        {:error, :enoent} ->
+          response = get_exchange_rates()
+
+          case Map.get(response, "success") do
+            true ->
+              update_rescue_conversion_rates(response)
+              response
+
+            false ->
+              last_conversions
+          end
+
+        # Other problem with the file
+        {:error, reason} ->
+          :file.format_error(reason)
+          |> List.to_string()
+          |> (&("Read: last_conversion.json: " <> &1)).()
+          |> exit()
+      end
+    end
   end
 
   @doc """
@@ -62,11 +114,19 @@ defmodule Currency_API do
   "Minor unit": "2"
   ```
   """
-  @spec get_iso_ref() :: p_decode()
-  def get_iso_ref() do
-    if File.exists?("lib/transfers/resources/ISO_4217_reference.json") do
-      iso_ref = get_all_json("lib/transfers/resources/ISO_4217_reference.json")
-      iso_ref
+  @spec init_iso_ref() :: p_decode()
+  def init_iso_ref() do
+    iso_ref = get_all_json(@iso_ref)
+
+    case iso_ref do
+      {:error, reason} ->
+        :file.format_error(reason)
+        |> List.to_string()
+        |> (&("Read: ISO_4217_reference.json: " <> &1)).()
+        |> exit()
+
+      _ ->
+        iso_ref
     end
   end
 
@@ -76,9 +136,8 @@ defmodule Currency_API do
 
   Return a list of tuple of [{numeric name, alphabetic name}]
   """
-  @spec get_available_currencies([tuple()], map()) :: [any()]
-  def get_available_currencies(iso_ref, last_conversions) do
-    # available_currencies = Currency_API.get_all_json("lib/transferts/resources/common_list_name_code.json")
+  @spec init_available_currencies([tuple()], map()) :: [any()]
+  def init_available_currencies(iso_ref, last_conversions) do
     last_conversions_names =
       Map.get(last_conversions, "rates")
       |> Map.keys()
@@ -117,7 +176,8 @@ defmodule Currency_API do
         Poison.decode!(content)
 
       {:error, reason} ->
-        IO.warn(reason)
+        # IO.warn(reason)
+        {:error, reason}
     end
   end
 

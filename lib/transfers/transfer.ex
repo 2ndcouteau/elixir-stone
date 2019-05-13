@@ -16,13 +16,29 @@ defmodule FS.Transfer do
     GenServer.start_link(__MODULE__, :ok, opts)
   end
 
-  # @doc """
-  # Get all references of currencies
-  # """
-  # @spec get_all_code(GenServer.server()) :: term()
-  # def get_all_code(server) do
-  #   GenServer.call(server, :get_all_code)
-  # end
+  @doc """
+  Return the `iso_ref` state of FS.Tranfer server.
+  """
+  @spec get_iso_ref(GenServer.server()) :: list()
+  def get_iso_ref(server) do
+    GenServer.call(server, {:get_iso_ref})
+  end
+
+  @doc """
+  Return the `last_conversions` state of FS.Tranfer server.
+  """
+  @spec get_last_conversions(GenServer.server()) :: list()
+  def get_last_conversions(server) do
+    GenServer.call(server, {:get_last_conversions})
+  end
+
+  @doc """
+  Return the `available_currencies` state of FS.Tranfer server.
+  """
+  @spec get_available_currencies(GenServer.server()) :: list()
+  def get_available_currencies(server) do
+    GenServer.call(server, {:get_available_currencies})
+  end
 
   @doc """
   Get one reference from the `number code` like "978" or `name code` like "EUR".
@@ -39,7 +55,7 @@ defmodule FS.Transfer do
   """
   @spec get_one_rate(GenServer.server(), integer() | String.t()) :: term()
   def get_one_rate(server, code_ref) do
-    unless conversion_rates_up?(server) do
+    if conversion_rates_up?(server) do
       GenServer.call(server, {:update_rates})
     end
 
@@ -125,20 +141,31 @@ defmodule FS.Transfer do
   Return {:ok, {iso_ref, last_conversions, available_currencies}}
   """
   def init(:ok) do
-    iso_ref = Currency_API.get_iso_ref()
-    last_conversions = Currency_API.get_last_conversions()
-    available_currencies = Currency_API.get_available_currencies(iso_ref, last_conversions)
+    iso_ref = Currency_API.init_iso_ref()
+    last_conversions = Currency_API.init_last_conversions()
+    available_currencies = Currency_API.init_available_currencies(iso_ref, last_conversions)
     {:ok, {iso_ref, last_conversions, available_currencies}}
   end
 
-  # def handle_call(:get_all_code, _from, {iso_ref, last_conversions, available_currencies}) do
-  #   if is_list(iso_ref) do
-  #     IO.inspect(iso_ref, limit: :infinity)
-  #   end
-  #
-  #   # new_iso_ref = Currency_API.get_all_json("conversions.json")
-  #   {:reply, iso_ref, {iso_ref, last_conversions, available_currencies}}
-  # end
+  def handle_call({:get_iso_ref}, _from, {iso_ref, last_conversions, available_currencies}) do
+    {:reply, iso_ref, {iso_ref, last_conversions, available_currencies}}
+  end
+
+  def handle_call(
+        {:get_last_conversions},
+        _from,
+        {iso_ref, last_conversions, available_currencies}
+      ) do
+    {:reply, last_conversions, {iso_ref, last_conversions, available_currencies}}
+  end
+
+  def handle_call(
+        {:get_available_currencies},
+        _from,
+        {iso_ref, last_conversions, available_currencies}
+      ) do
+    {:reply, available_currencies, {iso_ref, last_conversions, available_currencies}}
+  end
 
   def handle_call({:get_one_code, code}, _from, {iso_ref, last_conversions, available_currencies}) do
     case Enum.find(available_currencies, fn {num, name, _minor_unit} ->
@@ -156,7 +183,7 @@ defmodule FS.Transfer do
 
   def handle_call({:get_one_rate, code}, _from, {iso_ref, last_conversions, available_currencies}) do
     case get_currency_infos(code, available_currencies) do
-      {:ok, _num, name, _minor} ->
+      {_num, name, _minor} ->
         rate =
           Map.get(last_conversions, "rates")
           |> Map.get(name)
@@ -179,7 +206,7 @@ defmodule FS.Transfer do
         _from,
         {iso_ref, last_conversions, available_currencies}
       ) do
-    up? = Map.get(last_conversions, "timestamp") < System.os_time() / 1_000_000_000 - 3600
+    up? = System.os_time() / 1_000_000_000 - 3600 > Map.get(last_conversions, "timestamp")
 
     {:reply, up?, {iso_ref, last_conversions, available_currencies}}
   end
@@ -187,11 +214,15 @@ defmodule FS.Transfer do
   def handle_call({:update_rates}, _from, {iso_ref, last_conversions, available_currencies}) do
     response = Currency_API.get_exchange_rates()
 
-    if Map.get(response, "success") == true do
-      Currency_API.update_rescue_conversion_rates(response)
-      {:reply, {:ok}, {iso_ref, response, available_currencies}}
-    else
-      {:reply, {:error}, {iso_ref, last_conversions, available_currencies}}
+    IO.inspect(response)
+
+    case Map.get(response, "success") do
+      true ->
+        Currency_API.update_rescue_conversion_rates(response)
+        {:reply, {:ok}, {iso_ref, response, available_currencies}}
+
+      false ->
+        {:reply, {:error}, {iso_ref, last_conversions, available_currencies}}
     end
   end
 
@@ -211,7 +242,7 @@ defmodule FS.Transfer do
         {iso_ref, last_conversions, available_currencies}
       ) do
     case get_currency_infos(currency, available_currencies) do
-      {:ok, _num, _name, minor} ->
+      {_num, _name, minor} ->
         minor_unit = minor
         {:reply, minor_unit, {iso_ref, last_conversions, available_currencies}}
 
@@ -223,10 +254,14 @@ defmodule FS.Transfer do
 
   def get_currency_infos(code, available_currencies) do
     code =
-      is_integer(code)
-      |> Integer.to_string(code)
+      with true <- is_integer(code) do
+        Integer.to_string(code)
+      else
+        false ->
+          code
+      end
 
-    Enum.find(available_currencies, fn {num, name, _minor} ->
+    Enum.find(available_currencies, nil, fn {num, name, _minor} ->
       code == num || code == name
     end)
   end
