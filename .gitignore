@@ -25,6 +25,8 @@ financial_system-*.tar
 # Ignore the mix.lock (built from dialyzer)
 mix.lock
 
+# Ignore last_conversions file comes from Fixer.io API request
+lib/transfers/resources/last_conversions.json
 
 # Others
 personnal_notes.md
