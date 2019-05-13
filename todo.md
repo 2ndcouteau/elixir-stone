@@ -1,14 +1,17 @@
 # <u>__TODO__</u>
 
 ### Feat:
+
+##### In progress / cooking task
+- [] Manage Decimal type correctly
+
 #### Test Stone Challenge Financial-System
 - [] Create the whole architecture
 	- [x] Create a supervisor
 	- [x] Create a registry
 	- [x] Create a DynamicSupervisor for Clients
 	- [x] Create first rules for Clients
-	- [] Find a way to fetch conversion values
-		- In progress
+	- [x] Find a way to fetch conversion values
 
 - Architecture: ~~
 	- Supervisor
@@ -21,37 +24,6 @@
 			- Currencies API
 
 
-- [] Fetch currency conversion value
-	- First and simple way:
-		- [x] Hard encoded conversion value
-			- use Poison for JSON
-				- {:poison, "~> 4.0.1"},
-		[] Use a rescue system if API is not available.
-			- [x] Get information from backup json file
-			- [] Update the backup file when new API are available
-				- check timestamp
-	- or:
-		- [] Extern API usage
-			- https://fixer.io/ (free -- EUR)
-				- [x] API_key use
-				- [x] Save the api_key in a `secret` folder
-				- [x] Make request on API
-				- [x] Get information a save it in the Transfert GenServer State
-				- [] Save update informations in a backup file, cf `First way`
-			<!-- - https://currencylayer.com/ (free -- USD)
-			- https://openexchangerates.org/ (paid) -->
-		- Good ressources :
-			- Simple request:
-				- https://github.com/edgurgel/httpoison
-				- https://stackoverflow.com/questions/46633620/make-http-request-with-elixir-and-phoenix
-
-			- Subscribe/Sockets
-				- No need, the Fixer.API do not provide a pure realtime update
-				system.
-				- https://www.poeticoding.com/realtime-market-data-updates-with-elixir/
-				<!-- - {:websockex, "~> 0.4.2"}, -->
-				- {:poison, "~> 4.0.1"},
-
 - client.ex
 	- put_new_wallet(client_pid, currency, amount_deposited)
 	If a wallet already exist, need to decide if:
@@ -62,9 +34,6 @@
 ---
 
 ### <u>Tests:
-
-- Provide more test for the Transfert part
-- Provide more test for the Currency_API part
 
 ---
 
@@ -98,7 +67,12 @@
 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
 
 - [] Conversion(value, from_currency, to_currency)
-
+	- [x] Base to Currency
+	- [x] Currency to Base
+	- [x] Currency to Currency
+	- [x] Base to Base
+	- [x] Round by Minor Unit
+	- [] Manage Decimal type correctly
 
 ### <u>Structure:
 
@@ -193,6 +167,38 @@
 - Add [decimal_arithmetic](https://hex.pm/packages/decimal_arithmetic)
 	- Get [decimal](https://hex.pm/packages/decimal) automatically
 
+- [x] Fetch currency conversion value
+	- First and simple way:
+		- [x] Hard encoded conversion value
+			- use Poison for JSON
+				- {:poison, "~> 4.0.1"},
+		[x] Use a rescue system if API is not available.
+			- [x] Get information from backup json file
+			- [x] Update the backup file when new API are available
+				- check timestamp
+	- or:
+		- [x] Extern API usage
+			- https://fixer.io/ (free -- EUR)
+				- [x] API_key use
+				- [x] Save the api_key in a `secret` folder
+				- [x] Make request on API
+				- [x] Get information a save it in the Transfert GenServer State
+				- [x] Save update informations in a backup file, cf `First way`
+			<!-- - https://currencylayer.com/ (free -- USD)
+			- https://openexchangerates.org/ (paid) -->
+		- Good ressources :
+			- Simple request:
+				- https://github.com/edgurgel/httpoison
+				- https://stackoverflow.com/questions/46633620/make-http-request-with-elixir-and-phoenix
+
+			- Subscribe/Sockets
+				- No need, the Fixer.API do not provide a pure realtime update
+				system.
+				- https://www.poeticoding.com/realtime-market-data-updates-with-elixir/
+				<!-- - {:websockex, "~> 0.4.2"}, -->
+				- {:poison, "~> 4.0.1"},
+
+
 
 #### Test Programs
 - "Hello World" Elixir
@@ -232,6 +238,11 @@
 - Tests Registry
 	- Create_client
 	- Fetch
+- Test Transfer part
+	- need details ...
+- Test Currency_API part
+	- need details ...
+
 ---
 ### <u>Documentation:
 - Read documentation about Stoneco best practice
