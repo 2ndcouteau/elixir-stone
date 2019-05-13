@@ -11,6 +11,8 @@ defmodule Currency_API do
   use FS.Fixer_API
   use FS.Path_Resources
 
+  alias Decimal, as: D
+
   @type p_decode :: nil | true | false | list() | float() | integer() | String.t() | map()
   @type currency :: integer() | String.t()
 
@@ -195,36 +197,48 @@ defmodule Currency_API do
   def conversion(value, from_currency, to_currency) do
     base = FS.Transfer.get_base(Transfer)
 
+    nvalue =
+      with true <- is_integer(value) do
+        D.new(value)
+      else
+        false -> D.from_float(value)
+      end
+
     case is_bases?(base, from_currency, to_currency) do
       {false, false} ->
         {:error, :no_conversion}
 
       {false, true} ->
-        currency_to_base(value, from_currency)
+        currency_to_base(nvalue, from_currency)
         |> round_minor(base)
 
       {true, false} ->
-        base_to_currency(value, to_currency)
+        base_to_currency(nvalue, to_currency)
         |> round_minor(to_currency)
 
       {true, true} ->
-        currency_to_base(value, from_currency)
+        currency_to_base(nvalue, from_currency)
         |> base_to_currency(to_currency)
         |> round_minor(to_currency)
     end
   end
 
   defp round_minor(value, currency) do
-    minor_unit = FS.Transfer.get_minor_unit(Transfer, currency)
-    Decimal.round(value, minor_unit)
+    minor_unit =
+      FS.Transfer.get_minor_unit(Transfer, currency)
+      |> String.to_integer()
+
+    D.round(value, minor_unit)
   end
 
   defp base_to_currency(value, to_currency) do
-    value * get_rate(to_currency)
+    get_rate(to_currency)
+    |> (&D.mult(value, &1)).()
   end
 
   defp currency_to_base(value, from_currency) do
-    value / get_rate(from_currency)
+    get_rate(from_currency)
+    |> (&D.div(value, &1)).()
   end
 
   defp is_bases?(base, currency_code1, currency_code2) do
@@ -251,5 +265,6 @@ defmodule Currency_API do
   @spec get_rate(String.t() | integer()) :: float() | {:error, String.t()}
   def get_rate(currency_code) do
     FS.Transfer.get_one_rate(Transfer, currency_code)
+    |> D.from_float()
   end
 end

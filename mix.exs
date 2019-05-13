@@ -25,7 +25,8 @@ defmodule FinancialSystem.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
-      {:decimal_arithmetic, "~> 0.1.2"},
+      {:decimal, "~> 1.7.0"},
+      # {:decimal_arithmetic, "~> 0.1.2"},
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
       {:poison, "~> 4.0.1"},
       {:httpoison, "~> 1.5.1"}
