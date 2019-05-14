@@ -3,7 +3,7 @@
 ### Feat:
 
 ##### In progress / cooking task
-- [] Manage Decimal type correctly
+
 
 #### Test Stone Challenge Financial-System
 - [] Create the whole architecture
@@ -34,6 +34,8 @@
 ---
 
 ### <u>Tests:
+
+- [] Re-write FS and FS.Clients Test
 
 ---
 
@@ -66,13 +68,6 @@
 	- [] multi_transfert([client_id], wallet, to_wallet, value)
 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
 
-- [] Conversion(value, from_currency, to_currency)
-	- [x] Base to Currency
-	- [x] Currency to Base
-	- [x] Currency to Currency
-	- [x] Base to Base
-	- [x] Round by Minor Unit
-	- [] Manage Decimal type correctly
 
 ### <u>Structure:
 
@@ -163,9 +158,9 @@
 	- [x] Can fetch informations of clients from names
 		- [x] Find a way to return multiple value from List in get_id_name(name, id_name)
 
-- Add spec to all functions -- Have to continue until the end
-- Add [decimal_arithmetic](https://hex.pm/packages/decimal_arithmetic)
-	- Get [decimal](https://hex.pm/packages/decimal) automatically
+- [x] Add spec to all functions -- Have to continue until the end
+- [x] Add [decimal_arithmetic](https://hex.pm/packages/decimal_arithmetic)
+	- Get [decimal](https://hex.pm/packages/decimal)
 
 - [x] Fetch currency conversion value
 	- First and simple way:
@@ -198,6 +193,21 @@
 				<!-- - {:websockex, "~> 0.4.2"}, -->
 				- {:poison, "~> 4.0.1"},
 
+- [x] Manage Decimal type correctly
+
+- [x] Conversion(value, from_currency, to_currency)
+	- [x] Base to Currency
+	- [x] Currency to Base
+	- [x] Currency to Currency
+	- [x] Base to Base
+	- [x] Round by Minor Unit
+	- [x] Manage Decimal type correctly
+
+- [x] Review Clients functions -- Bad wallet management
+	- [x] Check available_currencies
+	- [x] Check minor_unit compliance
+	- [x] wallet creations
+	- [x] wallet updates
 
 
 #### Test Programs
