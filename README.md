@@ -31,13 +31,13 @@ You are now ready to use the `elixir-stone` project
 
 ### <u>How to use :
 
-##### - Run the program
+##### <u>- Run the program
 You can lunch the application with the following command:
 ```
 iex -S mix
 ```
 
-##### - Run the tests
+##### <u>- Run the tests
 You can run tests with:
 ```
 mix test
@@ -48,7 +48,7 @@ mix test --include external
 ```
 These tests make request on the distant API with a limited usage.
 
-##### - Run Static analyzer
+##### <u>- Run Static analyzer
 And also use the static analyzer `Dialyxir` with:
 ```
 mix dialyzer
@@ -56,7 +56,7 @@ mix dialyzer
 Some errors are ignored. You can find more details about them in the file
 `.dialyzer_ignore` in the root of the project.
 
-##### - Generate documentation
+##### <u>- Generate documentation
 Finally, you can generate the documentation with:
 ```
 mix docs
