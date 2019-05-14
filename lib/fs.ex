@@ -13,7 +13,7 @@ defmodule FS do
   return the `pid` and the unique `id` of the client
   """
 
-  @spec create_client(String.t(), integer(), integer()) :: {pid(), integer()}
+  @spec create_client(String.t(), integer(), integer() | float()) :: {pid(), integer()}
   def create_client(name, main_currency \\ 978, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
     FS.Clients.put_new_client_infos(client_pid, name, id, main_currency, amount_deposited)
@@ -31,10 +31,13 @@ defmodule FS do
     :ok
   end
 
-  @spec create_wallet(integer(), integer(), integer()) :: {integer(), integer(), integer()}
+  @spec create_wallet(integer(), integer() | String.t(), integer() | float()) ::
+          {integer(), integer(), integer() | float()}
   def create_wallet(client_id, currency, amount_deposited \\ 0) do
     client = FS.Registry.fetch(Register, client_id)
+
     {:ok, {client_pid, id, _name}} = Enum.fetch(client, 0)
+
     FS.Clients.put_new_wallet(client_pid, currency, amount_deposited)
     {id, currency, amount_deposited}
   end

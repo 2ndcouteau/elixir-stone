@@ -87,6 +87,17 @@ defmodule FS.Transfer do
     GenServer.call(server, {:conversion_rates_up?})
   end
 
+  # @spec conversion_rates_up?(GenServer.server()) :: bool()
+  # def is_available_currency?(server, currency) do
+  #   case get_one_rate(server, currency) do
+  #     {:error, "Currency unavailable"} ->
+  #       false
+  #
+  #     _ ->
+  #       true
+  #   end
+  # end
+
   @doc """
   Return the `base` from the `last_conversions` state elem.
   """
@@ -171,8 +182,8 @@ defmodule FS.Transfer do
     case Enum.find(available_currencies, fn {num, name, _minor_unit} ->
            num == code || name == code
          end) do
-      {alpha_code, numeric_code, minor_unit} ->
-        {:reply, {alpha_code, numeric_code, minor_unit},
+      {numeric_code, alpha_code, minor_unit} ->
+        {:reply, {numeric_code, alpha_code, minor_unit},
          {iso_ref, last_conversions, available_currencies}}
 
       _ ->
