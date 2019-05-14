@@ -53,13 +53,22 @@ defmodule FS.Transfer do
 
   If the rates are out_dated, the rates are updated before return the requested rate.
   """
-  @spec get_one_rate(GenServer.server(), integer() | String.t()) :: term()
+  @spec get_one_rate(GenServer.server(), integer() | String.t()) :: float() | {atom(), String.t()}
   def get_one_rate(server, code_ref) do
     if conversion_rates_up?(server) do
-      GenServer.call(server, {:update_rates})
+      ## Check error ??
+      update_rates(server)
     end
 
     GenServer.call(server, {:get_one_rate, code_ref})
+  end
+
+  @doc """
+    Fetch the updated rates and save them in `last_conversions`.
+  """
+  @spec update_rates(GenServer.server()) :: atom()
+  def update_rates(server) do
+    GenServer.call(server, {:update_rates})
   end
 
   @doc """
@@ -73,7 +82,8 @@ defmodule FS.Transfer do
   > 2
   ```
   """
-  @spec get_minor_unit(GenServer.server(), integer() | String.t()) :: integer()
+  @spec get_minor_unit(GenServer.server(), integer() | String.t()) ::
+          String.t() | {atom(), String.t()}
   def get_minor_unit(server, currency) do
     GenServer.call(server, {:get_minor_unit, currency})
   end
@@ -225,15 +235,13 @@ defmodule FS.Transfer do
   def handle_call({:update_rates}, _from, {iso_ref, last_conversions, available_currencies}) do
     response = Currency_API.get_exchange_rates()
 
-    IO.inspect(response)
-
     case Map.get(response, "success") do
       true ->
         Currency_API.update_rescue_conversion_rates(response)
-        {:reply, {:ok}, {iso_ref, response, available_currencies}}
+        {:reply, :ok, {iso_ref, response, available_currencies}}
 
       false ->
-        {:reply, {:error}, {iso_ref, last_conversions, available_currencies}}
+        {:reply, :error, {iso_ref, last_conversions, available_currencies}}
     end
   end
 

@@ -128,7 +128,6 @@ defmodule FS.Clients do
   @spec type_dec(integer() | float()) :: D.t()
   def type_dec(amount_deposited) do
     if D.decimal?(amount_deposited) do
-      IO.puts("HELLOOOO I AM DECIMAL !!! ")
       amount_deposited
     else
       dec_amount =

@@ -16,7 +16,7 @@ defmodule Currency_API do
   @type p_decode :: nil | true | false | list() | float() | integer() | String.t() | map()
   @type currency :: integer() | String.t()
 
-  @spec get_exchange_rates() :: any()
+  @spec get_exchange_rates() :: map()
   def get_exchange_rates() do
     url = "http://data.fixer.io/api/latest?access_key=#{@key_api}"
 
@@ -32,7 +32,7 @@ defmodule Currency_API do
   It's use when the Fixer.io API is not available.
   This file is updated when the timestamp is updated, each hour for free account.
   """
-  @spec update_rescue_conversion_rates(String.t()) :: {atom()}
+  @spec update_rescue_conversion_rates(map()) :: :ok | no_return()
   def update_rescue_conversion_rates(new_rates) do
     {_, content} = Poison.encode(new_rates)
 
@@ -57,8 +57,8 @@ defmodule Currency_API do
   Else make a request to the API for fresh information.
   If it's failed, take informations from the rescue file
   """
-  @spec init_last_conversions :: p_decode()
-  def init_last_conversions() do
+  @spec init_last_conversions :: p_decode | {atom(), atom()}
+  def(init_last_conversions()) do
     last_conversions = get_all_json(@last_conversions)
 
     # If the file exists and is valid
@@ -171,7 +171,7 @@ defmodule Currency_API do
   @doc """
   Read and return a json file in an usable format.
   """
-  @spec get_all_json(String.t()) :: p_decode
+  @spec get_all_json(String.t()) :: p_decode | {atom(), atom()}
   def get_all_json(path_file) do
     case File.read(path_file) do
       {:ok, content} ->
@@ -224,11 +224,16 @@ defmodule Currency_API do
   end
 
   defp round_minor(value, currency) do
-    minor_unit =
-      FS.Transfer.get_minor_unit(Transfer, currency)
-      |> String.to_integer()
+    minor_unit = FS.Transfer.get_minor_unit(Transfer, currency)
 
-    D.round(value, minor_unit)
+    case is_binary(minor_unit) do
+      true ->
+        minor = String.to_integer(minor_unit)
+        D.round(value, minor)
+
+      false ->
+        {:error, "Currency unavailable"}
+    end
   end
 
   defp base_to_currency(value, to_currency) do
@@ -262,9 +267,14 @@ defmodule Currency_API do
 
   If the currency does not exist, return `{:error, "Currency unavailable"}`.
   """
-  @spec get_rate(String.t() | integer()) :: float() | {:error, String.t()}
+  @spec get_rate(String.t() | integer()) :: D.t() | {:error, String.t()}
   def get_rate(currency_code) do
-    FS.Transfer.get_one_rate(Transfer, currency_code)
-    |> D.from_float()
+    case FS.Transfer.get_one_rate(Transfer, currency_code) do
+      {:error, "Currency unavailable"} ->
+        {:error, "Currency unavailable"}
+
+      rate ->
+        D.from_float(rate)
+    end
   end
 end
