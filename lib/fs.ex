@@ -35,6 +35,7 @@ defmodule FS do
           {integer(), integer(), integer() | float()}
   def create_wallet(client_id, currency, amount_deposited \\ 0) do
     client = FS.Registry.fetch(Register, client_id)
+    IO.inspect(client)
 
     {:ok, {client_pid, id, _name}} = Enum.fetch(client, 0)
 
@@ -59,6 +60,61 @@ defmodule FS do
       :not_exist ->
         IO.puts("The client wallet #{inspect(currency)} does not exist")
         :not_exist
+    end
+  end
+
+  @doc """
+  Print the struct client.s infos
+
+  By the string name, you can fetch several account with same name.
+  Only ID are uniques.
+  """
+  @spec print_client_infos(binary() | pos_integer()) :: :error | :ok
+  def print_client_infos(client) when is_integer(client) do
+    client = FS.Clients.get_client_back_infos(client)
+
+    case client != [] and client != nil do
+      true ->
+        IO.puts("---------------------")
+        {client_pid, id, name} = client
+        IO.puts("ID: #{id}, Name: #{name}")
+
+        main_currency = FS.Clients.get(client_pid, :main_currency)
+        {numeric_code, alpha_code, minor_unit} = FS.Transfer.get_one_code(Transfer, main_currency)
+        IO.puts("Main Currency: #{alpha_code}, #{numeric_code}, minor_unit = #{minor_unit}")
+
+        wallets = FS.Clients.get(client_pid, :wallets)
+
+        Enum.each(wallets, fn {code, value} ->
+          {_numeric_code, alpha_code, _minor_unit} = FS.Transfer.get_one_code(Transfer, code)
+          value = Decimal.to_string(value)
+          IO.puts("#{alpha_code}: #{value}")
+        end)
+
+        IO.puts("---------------------")
+
+      false ->
+        Tools.eputs("This ID does not exist.")
+    end
+  end
+
+  @doc """
+  Print the IDs and Names of clients with the given name.
+
+  By the string name, you can fetch several account with same name.
+  Only ID are uniques.
+  """
+  # @spec print_client_infos(String.t()) :: none()
+  def print_client_infos(client) when is_binary(client) do
+    clients = FS.Registry.fetch(Register, client)
+
+    case clients != [] do
+      true ->
+        Enum.each(clients, fn {_pid, id, name} -> IO.puts("ID: #{id}, Name: #{name}") end)
+        IO.puts("Please relaunch the function with the corresponding `ID`.")
+
+      false ->
+        Tools.eputs("This name does not exist.")
     end
   end
 

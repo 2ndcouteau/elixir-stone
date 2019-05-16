@@ -1,8 +1,13 @@
 defmodule FS.Clients do
   use Agent, restart: :temporary
-  use DecimalArithmetic
+
+  defguardp is_client(id) when is_integer(id) and rem(id, 1000) == 0 and id >= 1000
+
+  # use DecimalArithmetic
 
   alias Decimal, as: D
+
+  @type currency :: integer() | String.t()
 
   @doc """
   Bucket FS.Clients implementation.
@@ -28,19 +33,19 @@ defmodule FS.Clients do
   def put_new_client_infos(client_pid, name, id, main_currency, amount_deposited) do
     Agent.update(client_pid, &Map.put(&1, :name, name))
     Agent.update(client_pid, &Map.put(&1, :id, id))
-    code_currency = type_currency(main_currency)
+    code_currency = Tools.type_currency(main_currency)
 
     case FS.Transfer.get_one_code(Transfer, code_currency) do
       {numeric_code, _alpha_code, minor_unit} ->
-        Agent.update(client_pid, &Map.put(&1, :main_currency, String.to_integer(numeric_code)))
+        Agent.update(client_pid, &Map.put(&1, :main_currency, numeric_code))
 
         dec_amount =
-          type_dec(amount_deposited)
+          Tools.type_dec(amount_deposited)
           |> D.round(String.to_integer(minor_unit))
 
         Agent.update(
           client_pid,
-          &Map.put(&1, :wallets, %{String.to_integer(numeric_code) => dec_amount})
+          &Map.put(&1, :wallets, %{numeric_code => dec_amount})
         )
 
         :ok
@@ -61,21 +66,21 @@ defmodule FS.Clients do
   @spec put_new_wallet(pid(), integer() | String.t(), integer() | float()) :: atom()
   def put_new_wallet(client_pid, currency, amount_deposited) do
     old_wallets = FS.Clients.get(client_pid, :wallets)
-    code_currency = type_currency(currency)
+    code_currency = Tools.type_currency(currency)
 
     case FS.Transfer.get_one_code(Transfer, code_currency) do
       {numeric_code, _alpha_code, minor_unit} ->
         dec_amount =
-          type_dec(amount_deposited)
+          Tools.type_dec(amount_deposited)
           |> D.round(String.to_integer(minor_unit))
 
-        new_wallets = Map.put_new(old_wallets, String.to_integer(numeric_code), dec_amount)
+        new_wallets = Map.put_new(old_wallets, numeric_code, dec_amount)
 
         if old_wallets != new_wallets do
           Agent.update(client_pid, &Map.put(&1, :wallets, new_wallets))
           :ok
         else
-          # IO.warn("Please use transfer function.")
+          Tools.eputs("Wallet already exists. Please use transfer functions.")
           :already_exists
         end
 
@@ -85,14 +90,7 @@ defmodule FS.Clients do
     end
   end
 
-  @spec type_currency(integer() | String.t()) :: String.t()
-  defp type_currency(currency) do
-    if is_binary(currency) do
-      currency
-    else
-      Integer.to_string(currency)
-    end
-  end
+  # def get_wallets_infos(client_pid)
 
   @doc """
   Delete a wallet from the client wallets.
@@ -102,12 +100,13 @@ defmodule FS.Clients do
     - :not_exist
     - :not_empty
   """
-  @spec delete_wallet(pid(), integer()) :: atom()
+  @spec delete_wallet(pid(), currency()) :: atom()
   def delete_wallet(client_pid, currency) do
+    currency = Tools.type_currency(currency)
     old_wallets = FS.Clients.get(client_pid, :wallets)
     value = Map.get(old_wallets, currency)
 
-    if D.decimal?(value) && D.equal?(value, ~m(0)) do
+    if value != nil and D.equal?(value, D.new(0)) do
       new_wallets = Map.delete(old_wallets, currency)
       Agent.update(client_pid, &Map.put(&1, :wallets, new_wallets))
       :ok
@@ -123,22 +122,49 @@ defmodule FS.Clients do
   end
 
   @doc """
-  Transform integer() or float() amount in Decimal.t()
+  Get the client info from Register
   """
-  @spec type_dec(integer() | float()) :: D.t()
-  def type_dec(amount_deposited) do
-    if D.decimal?(amount_deposited) do
-      amount_deposited
-    else
-      dec_amount =
-        with true <- is_integer(amount_deposited) do
-          D.new(amount_deposited)
-        else
-          false ->
-            D.from_float(amount_deposited)
-        end
+  @spec get_client_back_infos(integer()) :: {pid(), integer(), String.t()} | nil
+  def get_client_back_infos(client) when is_client(client) do
+    FS.Registry.fetch(Register, client)
+    |> Enum.at(0)
+  end
 
-      dec_amount
+  @doc """
+  Get informations about one particular wallet of a particular client.
+  """
+  @spec get_one_wallet_infos(integer(), String.t()) :: {String.t(), D.t()} | atom()
+  def get_one_wallet_infos(client_id, currency) do
+    client = FS.Clients.get_client_back_infos(client_id)
+
+    case valid_client_back_infos(client) do
+      {client_pid, _id, _name} ->
+        wallets = FS.Clients.get(client_pid, :wallets)
+
+        Enum.find(wallets, fn {code, _value} ->
+          # IO.puts("WINFO code" <> Tools.typeof(code))
+          # IO.puts("WINFO currency" <> Tools.typeof(currency))
+          code == currency
+        end)
+
+      false ->
+        Tools.eputs("This ID does not exist.")
+    end
+  end
+
+  @doc """
+  Check with is the client exist and return each element
+  """
+  @spec valid_client_back_infos({pid(), integer(), String.t()} | nil) ::
+          {pid(), integer(), String.t()} | false
+  def valid_client_back_infos(client_infos) do
+    case client_infos != nil do
+      true ->
+        {client_pid, id, name} = client_infos
+        {client_pid, id, name}
+
+      false ->
+        false
     end
   end
 

@@ -6,6 +6,16 @@ defmodule FS.Transfer do
 
   use GenServer
 
+  alias Decimal, as: D
+  ## Private guards
+
+  # defguardp is_account(id) when is_integer(id) and id >= 1000 and rem(id, 1000) != 0
+  defguardp is_client(id) when is_integer(id) and rem(id, 1000) == 0 and id >= 1000
+
+  defguardp is_wallet(id)
+            when (is_integer(id) and div(id, 1000) == 0 and id > 0 and id < 1000) or
+                   (is_binary(id) and byte_size(id) == byte_size("XXX"))
+
   ## Client API
 
   @doc """
@@ -97,17 +107,6 @@ defmodule FS.Transfer do
     GenServer.call(server, {:conversion_rates_up?})
   end
 
-  # @spec conversion_rates_up?(GenServer.server()) :: bool()
-  # def is_available_currency?(server, currency) do
-  #   case get_one_rate(server, currency) do
-  #     {:error, "Currency unavailable"} ->
-  #       false
-  #
-  #     _ ->
-  #       true
-  #   end
-  # end
-
   @doc """
   Return the `base` from the `last_conversions` state elem.
   """
@@ -115,6 +114,137 @@ defmodule FS.Transfer do
   def get_base(server) do
     GenServer.call(server, {:get_base})
   end
+
+  @doc """
+  Transfer value from one given currency wallet to another client.
+
+  tranfer/5
+
+  The wallet destination of the client is defined by the `direct_conversion` parameter.
+  If the direct conversion is `:true`, the value will be deposited in the main wallet of the client.
+  Else, the amount will be deposited in the same currency wallet than the sending client.
+  In this case, if the destination client does not already have a compliant currency wallet,
+  this last is created.
+
+  Exemple:
+  ```
+    transfer(42000, 24000, 101010, "BRL", :false)
+  ```
+  """
+  @spec transfer(
+          integer(),
+          integer(),
+          integer() | String.t(),
+          number() | D.t(),
+          boolean()
+        ) :: atom()
+  def transfer(client_id, to_client_id, currency, value, direct_conversion)
+      when is_client(client_id)
+      when is_client(to_client_id)
+      when is_wallet(currency)
+      when value > 0
+      when is_boolean(direct_conversion) do
+    value = Tools.type_dec(value)
+    currency = Tools.type_currency(currency)
+    client = FS.Clients.get_client_back_infos(client_id)
+    to_client = FS.Clients.get_client_back_infos(to_client_id)
+
+    case check_transfer_elements(client, client_id, to_client, to_client_id, currency, value) do
+      :ok ->
+        # make_transfer()
+        :ok
+
+      {:error, reason} ->
+        Tools.eputs(reason)
+    end
+  end
+
+  @spec check_transfer_elements(tuple, integer(), tuple(), integer(), String.t(), D.t()) ::
+          {atom(), String.t()} | atom()
+  def check_transfer_elements(client, client_id, to_client, to_client_id, currency, value) do
+    cond do
+      client == nil ->
+        {:error, "Client #{client_id} does not exist"}
+
+      to_client == nil ->
+        {:error, "Client #{to_client_id} does not exist"}
+
+      true ->
+        case get_one_code(Transfer, currency) do
+          {:error, reason} ->
+            {:error, reason}
+
+          {numeric_code, alpha_code, _minor_unit} ->
+            case FS.Clients.get_one_wallet_infos(client_id, numeric_code) do
+              # account_value = Tools.type_dec(account_value)
+              # IO.inspect("VALUE -- #{value}" <> Tools.typeof(value))
+              # IO.inspect("Account -- #{account_value}" <> Tools.typeof(account_value))
+
+              {_w_currency, w_value} ->
+                case Decimal.cmp(value, w_value) do
+                  :lt ->
+                    {:error, "Not enough money available. Founds available: #{w_value}"}
+
+                  _ ->
+                    :ok
+                end
+
+              nil ->
+                {:error, "The Client '#{client_id}' does have an #{alpha_code} account."}
+            end
+        end
+    end
+
+    # case get_one_code(currency) do
+    #   {numeric_code, alpha_code, minor_unit} ->
+    #
+    #   {:error, reason} ->
+    #     IO.warn(reason)
+    # end
+  end
+
+  #
+  # @doc """
+  # Transfer value from one account to another.
+  #
+  # tranfer/3
+  #
+  # An account is a partcular wallet of a particular client.
+  # The id account is contruct by the addition of the id_client and the id_currency of the wallet
+  #
+  # Exemple:
+  # For the account_id = 45978, the id_client is 45000 and the wallet is 978 => EUR
+  # """
+  # @spec transfer(integer(), integer(), number() | D.t()) :: atom()
+  # def transfer(account_id, to_account_id, value)
+  #     when is_account(account_id)
+  #     when is_account(to_account_id)
+  #     when value > 0 do
+  #   value = Tools.type()
+  # end
+  #
+  # @doc """
+  # Transfer value from wallet to another wallet for the same Client
+  #
+  # tranfer/4
+  #
+  # - wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
+  # """
+  # @spec transfer(integer(), integer(), integer(), number() | D.t()) :: atom()
+  # def transfer(client_id, wallet, to_wallet, value)
+  #     when is_client(client_id)
+  #     when is_wallet(wallet)
+  #     when is_wallet(to_wallet)
+  #     when value > 0 do
+  #   value
+  # end
+
+  # defmacro is_wallet(id) do
+  #     quote do
+  #       is_integer(unquote(id)) and div(unquote(id), 1000) == 0 and unquote(id) > 0
+  #     end
+  #   end
+  # end
 
   ## Server Callbacks
 
@@ -189,6 +319,8 @@ defmodule FS.Transfer do
   end
 
   def handle_call({:get_one_code, code}, _from, {iso_ref, last_conversions, available_currencies}) do
+    code = Tools.type_currency(code)
+
     case Enum.find(available_currencies, fn {num, name, _minor_unit} ->
            num == code || name == code
          end) do
