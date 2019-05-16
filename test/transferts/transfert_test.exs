@@ -23,6 +23,7 @@ defmodule FS.TransferTest do
 
   test "Get one code", %{registry: registry} do
     assert FS.Transfer.get_one_code(registry, "840") == {"840", "USD", "2"}
+    assert FS.Transfer.get_one_code(registry, 840) == {"840", "USD", "2"}
     assert FS.Transfer.get_one_code(registry, "USD") == {"840", "USD", "2"}
     assert FS.Transfer.get_one_code(registry, "EUR") == {"978", "EUR", "2"}
     assert FS.Transfer.get_one_code(registry, "978") == {"978", "EUR", "2"}
@@ -31,7 +32,6 @@ defmodule FS.TransferTest do
     assert FS.Transfer.get_one_code(registry, "ABC") == {:error, "Currency unavailable"}
 
     assert FS.Transfer.get_one_code(registry, :USD) == {:error, "Currency unavailable"}
-    assert FS.Transfer.get_one_code(registry, 840) == {:error, "Currency unavailable"}
   end
 
   test "Get one rate from last_conversions state", %{registry: registry} do
@@ -81,5 +81,16 @@ defmodule FS.TransferTest do
 
   test "Get base currency for transfer from Fixer.io API", %{registry: registry} do
     assert FS.Transfer.get_base(registry) == "EUR"
+  end
+
+  test "Transfer/5 ", %{registry: _registry} do
+    assert {client_pid1, id1} = FS.create_client("toto", 986, 4242)
+    assert {client_pid2, id2} = FS.create_client("titi", 986, 101_010)
+
+    assert FS.Transfer.transfer(id1, id2, 986, 4242, true) == :ok
+
+    assert FS.delete_client(id1)
+    assert FS.delete_client(id2)
+    Supervisor.terminate_child(FS.Supervisor, Register)
   end
 end
