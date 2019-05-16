@@ -76,6 +76,8 @@ defmodule Currency_API do
               response
 
             false ->
+              Tools.eputs("Update last_conversions impossible.
+Please check the @key_api validity.")
               last_conversions
           end
       end
@@ -91,6 +93,8 @@ defmodule Currency_API do
               response
 
             false ->
+              Tools.eputs("Update last_conversions impossible.
+Please check the @key_api validity.")
               last_conversions
           end
 
