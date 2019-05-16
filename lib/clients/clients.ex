@@ -63,7 +63,8 @@ defmodule FS.Clients do
 
   If the wallet already exist, the wallets are not updated
   """
-  @spec put_new_wallet(pid(), integer() | String.t(), integer() | float()) :: atom()
+  @spec put_new_wallet(pid(), integer() | String.t(), number() | D.t()) ::
+          atom() | {atom(), String.t()}
   def put_new_wallet(client_pid, currency, amount_deposited) do
     old_wallets = FS.Clients.get(client_pid, :wallets)
     code_currency = Tools.type_currency(currency)
@@ -88,6 +89,32 @@ defmodule FS.Clients do
         IO.warn(reason)
         {:error, reason}
     end
+  end
+
+  @doc """
+  Change the value of a particular currency wallet of a client.
+
+  Return {currency, new_value, round_amount} with:
+    currency -> The currency of the deposit
+    new_value -> The new amount of the curency wallet
+    round_amount -> The difference with the old_value
+  """
+  @spec update_wallet(pid(), integer(), String.t(), D.t()) :: {String.t(), D.t(), D.t()}
+  def update_wallet(client_pid, client_id, currency, amount_deposited) do
+    {numeric_code, _alpha_code, minor_unit} = FS.Transfer.get_one_code(Transfer, currency)
+
+    round_amount =
+      amount_deposited
+      |> D.round(String.to_integer(minor_unit))
+
+    old_wallets = FS.Clients.get(client_pid, :wallets)
+    {currency_code, old_value} = FS.Clients.get_one_wallet_infos(client_id, numeric_code)
+
+    new_value = D.add(old_value, round_amount)
+
+    new_wallets = Map.put(old_wallets, currency_code, new_value)
+    Agent.update(client_pid, &Map.put(&1, :wallets, new_wallets))
+    {currency_code, new_value, round_amount}
   end
 
   # def get_wallets_infos(client_pid)

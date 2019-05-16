@@ -196,31 +196,25 @@ defmodule Currency_API do
   The default context has a precision of 28, the rounding algorithm is :half_up.
   The set trap enablers are :invalid_operation and :division_by_zero
   """
-  @spec conversion(integer(), currency, currency) :: any()
+  @spec conversion(number() | D.t(), currency(), currency()) :: any()
   def conversion(value, from_currency, to_currency) do
     base = FS.Transfer.get_base(Transfer)
-
-    nvalue =
-      with true <- is_integer(value) do
-        D.new(value)
-      else
-        false -> D.from_float(value)
-      end
+    dec_value = Tools.type_dec(value)
 
     case is_bases?(base, from_currency, to_currency) do
       {false, false} ->
-        {:error, :no_conversion}
+        dec_value
 
       {false, true} ->
-        currency_to_base(nvalue, from_currency)
+        currency_to_base(dec_value, from_currency)
         |> round_minor(base)
 
       {true, false} ->
-        base_to_currency(nvalue, to_currency)
+        base_to_currency(dec_value, to_currency)
         |> round_minor(to_currency)
 
       {true, true} ->
-        currency_to_base(nvalue, from_currency)
+        currency_to_base(dec_value, from_currency)
         |> base_to_currency(to_currency)
         |> round_minor(to_currency)
     end
