@@ -3,6 +3,7 @@
 ### Feat:
 
 ##### In progress / cooking task
+[] Correct timestamp check refresh condition !
 
 
 #### Test Stone Challenge Financial-System
@@ -41,6 +42,12 @@
 
 ### <u>Chore:
 
+
+---
+
+### <u>Docs
+- Make docs for clients.ex
+- Make docs for registry.ex
 
 ---
 
