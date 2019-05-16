@@ -73,13 +73,13 @@ defmodule Currency_API do
 
           case Map.get(response, "success") do
             true ->
-              response
 
             false ->
               Tools.eputs("Update last_conversions impossible.
 Please check the @key_api validity.")
               last_conversions
           end
+          update_rescue_conversion_rates(last_conversions)
       end
     else
       case last_conversions do
@@ -89,14 +89,13 @@ Please check the @key_api validity.")
 
           case Map.get(response, "success") do
             true ->
-              update_rescue_conversion_rates(response)
-              response
 
             false ->
               Tools.eputs("Update last_conversions impossible.
 Please check the @key_api validity.")
               last_conversions
           end
+          update_rescue_conversion_rates(last_conversions)
 
         # Other problem with the file
         {:error, reason} ->
