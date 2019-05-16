@@ -32,8 +32,8 @@ defmodule Currency_API do
   It's use when the Fixer.io API is not available.
   This file is updated when the timestamp is updated, each hour for free account.
   """
-  @spec update_rescue_conversion_rates(p_decode()) :: p_decode() | no_return()
-  def update_rescue_conversion_rates(last_conversions) do
+  @spec update_rescue_conversion_rates(p_decode() | {atom(), atom()}) :: p_decode() | no_return()
+  def update_rescue_conversion_rates(last_conversions \\ {:error, :enoent}) do
     response = get_exchange_rates()
 
     case Map.get(response, "success") do
@@ -54,7 +54,17 @@ defmodule Currency_API do
       false ->
         Tools.eputs("Update last_conversions impossible.
     Please check the @key_api validity.")
-        last_conversions
+
+        case last_conversions do
+          {:error, reason} ->
+            :file.format_error(reason)
+            |> List.to_string()
+            |> (&("Fetch: last_conversion.json: " <> &1)).()
+            |> exit()
+
+          _ ->
+            last_conversions
+        end
     end
   end
 
@@ -67,7 +77,7 @@ defmodule Currency_API do
   Else make a request to the API for fresh information.
   If it's failed, take informations from the rescue file
   """
-  @spec init_last_conversions :: p_decode | {atom(), atom()}
+  @spec init_last_conversions :: p_decode
   def(init_last_conversions()) do
     last_conversions = get_all_json(@last_conversions)
 
@@ -85,7 +95,7 @@ defmodule Currency_API do
       case last_conversions do
         # The file does not exist
         {:error, :enoent} ->
-          update_rescue_conversion_rates(last_conversions)
+          update_rescue_conversion_rates()
 
         # Other problem with the file
         {:error, reason} ->
