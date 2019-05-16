@@ -37,7 +37,7 @@ defmodule FS.Registry do
   @doc """
   Delete the client associated with the given `id` in the `registry`.
   """
-  @spec delete_client(GenServer.server(), integer()) :: term()
+  @spec delete_client(GenServer.server(), integer()) :: {pid(), integer()}
   def delete_client(server, id) do
     GenServer.call(server, {:delete_client, id})
   end
