@@ -10,10 +10,14 @@ defmodule FS.Fixer_API do
   ```
   """
 
-  # julag@simpleemail.info
+  # julag@simpleemail.info == "8be9b6f827c2c8f88571572481b20002"
+  # tupomiri@quick-mail.club == "2c5f01fdc85d23fcad6c1a716eba0d0e"
   defmacro __using__(_) do
     quote do
-      @key_api "8be9b6f827c2c8f88571572481b20002"
+      ## OLD KEYS
+      # @key_api "8be9b6f827c2c8f88571572481b20002"
+      ## FRESH ONES
+      @key_api "2c5f01fdc85d23fcad6c1a716eba0d0e"
     end
   end
 end
