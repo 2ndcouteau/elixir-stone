@@ -32,19 +32,29 @@ defmodule Currency_API do
   It's use when the Fixer.io API is not available.
   This file is updated when the timestamp is updated, each hour for free account.
   """
-  @spec update_rescue_conversion_rates(map()) :: :ok | no_return()
-  def update_rescue_conversion_rates(new_rates) do
-    {_, content} = Poison.encode(new_rates)
+  @spec update_rescue_conversion_rates(p_decode()) :: p_decode() | no_return()
+  def update_rescue_conversion_rates(last_conversions) do
+    response = get_exchange_rates()
 
-    case File.write(@last_conversions, content) do
-      :ok ->
-        :ok
+    case Map.get(response, "success") do
+      true ->
+        {_, content} = Poison.encode(response)
 
-      {:error, reason} ->
-        :file.format_error(reason)
-        |> List.to_string()
-        |> (&("Write: last_conversion.json: " <> &1)).()
-        |> exit()
+        case File.write(@last_conversions, content) do
+          :ok ->
+            response
+
+          {:error, reason} ->
+            :file.format_error(reason)
+            |> List.to_string()
+            |> (&("Write: last_conversion.json: " <> &1)).()
+            |> exit()
+        end
+
+      false ->
+        Tools.eputs("Update last_conversions impossible.
+    Please check the @key_api validity.")
+        last_conversions
     end
   end
 
@@ -69,32 +79,12 @@ defmodule Currency_API do
           last_conversions
 
         true ->
-          response = get_exchange_rates()
-
-          case Map.get(response, "success") do
-            true ->
-
-            false ->
-              Tools.eputs("Update last_conversions impossible.
-Please check the @key_api validity.")
-              last_conversions
-          end
           update_rescue_conversion_rates(last_conversions)
       end
     else
       case last_conversions do
         # The file does not exist
         {:error, :enoent} ->
-          response = get_exchange_rates()
-
-          case Map.get(response, "success") do
-            true ->
-
-            false ->
-              Tools.eputs("Update last_conversions impossible.
-Please check the @key_api validity.")
-              last_conversions
-          end
           update_rescue_conversion_rates(last_conversions)
 
         # Other problem with the file
