@@ -158,6 +158,22 @@ defmodule FS.Clients do
   end
 
   @doc """
+  Get the clients infos from Register
+
+  Return a list of Clients infos
+  """
+  @spec get_clients_list_back_infos([integer()]) :: [{pid(), integer(), String.t()}] | [...]
+  def get_clients_list_back_infos(clients) when is_list(clients) do
+    Enum.each(clients, fn id_client ->
+      FS.Registry.fetch(Register, id_client)
+      # Use Enum.at because fetch() return a [client]
+      # When the id_client is a number_code the len[client] == 1
+      |> Enum.at(0)
+    end)
+    |> IO.inspect()
+  end
+
+  @doc """
   Get informations about one particular wallet of a particular client.
   """
   @spec get_one_wallet_infos(integer(), String.t()) :: {String.t(), D.t()} | atom()
