@@ -154,11 +154,11 @@ defmodule FS.Transfer do
     case check_transfer_elements(
            client,
            client_id,
-           to_client,
-           to_client_id,
+           [to_client],
+           [to_client_id],
            currency,
-           currency,
-           value
+           value,
+           direct_conversion
          ) do
       :ok ->
         case direct_conversion do
@@ -199,8 +199,8 @@ defmodule FS.Transfer do
     case check_transfer_elements(
            client,
            client_id,
-           to_client,
-           to_client_id,
+           [to_client],
+           [to_client_id],
            from_currency,
            to_currency,
            value
@@ -237,7 +237,15 @@ defmodule FS.Transfer do
     to_wallet = Tools.type_currency(to_wallet)
     client = FS.Clients.get_client_back_infos(client_id)
 
-    case check_transfer_elements(client, client_id, client, client_id, wallet, to_wallet, value) do
+    case check_transfer_elements(
+           client,
+           client_id,
+           [client],
+           [client_id],
+           wallet,
+           to_wallet,
+           value
+         ) do
       :ok ->
         # IO.inspect(from_currency, label: "toto")
         # IO.inspect(client, label: "toto")
@@ -327,6 +335,170 @@ defmodule FS.Transfer do
     end
   end
 
+  # @spec transfer(
+  #         integer(),
+  #         [integer()],
+  #         integer() | String.t(),
+  #         number() | D.t(),
+  #         boolean()
+  #       ) :: {String.t(), D.t(), D.t()} | atom()
+  # def multi_transfer(client_id, to_clients_ids, currency, value, direct_conversion)
+  #     when is_client(client_id)
+  #     when is_list(to_clients_ids)
+  #     when is_wallet(currency)
+  #     when is_number(value)
+  #     when value > 0
+  #     when is_boolean(direct_conversion) do
+  #   value = Tools.type_dec(value)
+  #   currency = Tools.type_currency(currency)
+  #   client = FS.Clients.get_client_back_infos(client_id)
+  #   to_clients = FS.Clients.get_clients_list_back_infos(to_clients_ids)
+  #
+  #   nb_clients = Enum.count(to_clients)
+  #   split_value = Decimal.div(value, nb_clients)
+  #
+  #   case check_transfer_elements(
+  #          client,
+  #          client_id,
+  #          to_clients,
+  #          to_clients_ids,
+  #          currency,
+  #          currency,
+  #          split_value
+  #        ) do
+  #     :ok ->
+  #       # IO.inspect(from_currency, label: "toto")
+  #       # IO.inspect(client, label: "toto")
+  #       # IO.inspect(to_currency, label: "titi")
+  #       # IO.inspect(to_client, label: "titi")
+  #       # IO.inspect(value, label: "value")
+  #       # Enum.each()
+  #       make_transfer(client, to_clients, currency, currency, value)
+  #
+  #     {:error, reason} ->
+  #       Tools.eputs(reason)
+  #   end
+  # end
+
+  def transfer(client_id, to_client_id, currency, value, check_to_currency)
+
+  check_to_currency == false
+    true -> main_currency is DONT COST MUCH
+    false -> currency is previous checked NO NEED IMPLEMENT SO SKIP
+
+  def transfer(account_id, to_account_id, value)
+  check_to_currency == true
+    true -> check currencies [n]
+    false -> !!! CANT BE FALSE
+
+  def transfer(client_id, wallet, to_wallet, value)
+  check_to_currency == true
+    true -> check [to_wallet] [1]
+    false -> CANT BE FALSE
+
+  # Check_to_currency param
+  # transfer/5 -> false
+  # multi/5 -> false
+  # transfer/3 -> true
+  # multi/3 -> true
+  # transfer/4 -> true
+
+  ###########################
+  # FLOW TRANSFER FUNCTIONS #
+  ###########################
+  # check_clients = check_clients()
+  # check_currencies = check_currencies()
+  # cond do
+  #   check_clients == :error ->
+  #     :error
+  #   check_currencies == :error ->
+  #     :error
+  #   true ->
+  #     check_values = check_values(check_currencies)
+  #     cond do
+  #       check_values == :error ->
+  #         :error
+  #       true ->
+  #         make_tranfert()
+  #     end
+  # end
+
+
+
+
+
+##################################################
+# DEFINITION OF CHECK FOR EACH TRANSFER FUNCTION #
+##################################################
+# Check `from_client` and `to_clients` validity
+# check_clients = check_clients()
+# - transfer/5
+#   - check client and [to_client]
+# - multi/5
+#   - check client and [to_clients]
+# - transfer/3
+#   - check client and [to_client]
+# - multi/3
+#   - check client and [to_clients]
+# - transfer/4
+#   - check_client
+# RETURN :ok | {:error, reason}
+#
+# 2 check functions (1 sub_function, 1 direct check)
+#
+# --------------------------------------------------------------------------------------------------
+# Check `from_currency` and `to_currencies` validty
+# check_currencies = check_currencies()
+# - transfer/5
+#   - check currency and [to_main_currency] -> create list main_currencies // Direct Conversion == true
+#   - check currency and [currency] -> create list of N elem with only [currency]
+# - multi/5
+#   - check currency and [to_main_currencies] -> create list main_currencies // Direct Conversion == true
+#   - check currency and [currency] -> create list of N elem with only [currency]
+# - transfer/3
+#   - check currency and [to_currency]
+# - multi/3
+#   - check currency and [to_currencies]
+# - transfer/4
+#   - check currency and [to_currency]
+# RETURN [to_currencies] | {:error, reason}
+# [to_currencies] = [code_number, ...]
+#
+# 2 functions
+#   - transfer/5 multi/5 return a created list and Direct conversion param
+#   - other get list of currencies, and return it if OK
+#
+# --------------------------------------------------------------------------------------------------
+# Check Values validity
+# check_values = check_values([to_currencies]) // check_currencies return
+# - transfer/5
+#     (split_value = value / 1)
+#   - check conversion(split_value, [to_currency]) > 0 // Direct Conversion == true
+#   - check split_value > 0
+# - multi/5
+#     (split_value = value / nb([to_currencies]))
+#   - check conversion(split_value, [to_currencies]) > 0 // Direct Conversion == true
+#   - check split_value > 0
+# - transfer/3
+#   - check conversion(split_value, [to_currency]) > 0
+# - multi/3
+#   - check conversion(split_value, [to_currencies]) > 0
+# - transfer/4
+#   - check conversion(split_value, [to_currencies]) > 0
+# RETURN [{split_value, transfer_value}] | {:error, reason}
+#
+# 1 function
+#   - Direct conversion or not conversion function take care about return the value if the
+# `from_currency` and the `to_currency` are the same
+#
+# --------------------------------------------------------------------------------------------------
+# take_while(enumerable, fun)
+
+  from_client, from_client_id,
+  [to_client], [to_client_id],
+  from_currency, [to_currencies],
+  value # splitted currency
+  check_to_currencies \\ true
   @doc """
   Check if both of client exist, if the currency is valid, if the sender has a wallet of
   this currency and if the destination currency is valid.
@@ -334,29 +506,95 @@ defmodule FS.Transfer do
   @spec check_transfer_elements(
           tuple,
           integer(),
-          tuple(),
-          integer(),
+          [tuple()],
+          [integer()],
           String.t(),
-          String.t(),
-          D.t()
+#          [String.t()],
+          D.t(),
+          boolean
         ) ::
-          {atom(), String.t()} | atom()
+          {:error, String.t()} | {:ok, [{String.t(), D.t)}]} #{:ok, [{to_currency, value}]}
   def check_transfer_elements(
-        client,
-        client_id,
-        to_client,
-        to_client_id,
-        currency,
-        to_currency,
+        from_client,
+        from_client_id,
+        to_clients,
+        to_clients_ids,
+        from_currency,
+#        [to_currencies],
         value
+        check_to_currencies
       ) do
-    cond do
-      client == nil ->
-        {:error, "Client #{client_id} does not exist"}
 
+
+    # Check `from_client` and `to_clients` validity
+    to_client_invalid = Enum.find(
+            Enum.zip(to_clients, to_clients_ids),
+            fn to_client, to_client_id ->
+              to_client == nil
+            end)
+    cond do
+      # Check to_client validity
       to_client == nil ->
         {:error, "Client #{to_client_id} does not exist"}
 
+      to_client_invalid != [] ->
+        {nil, to_client_id} = to_client_invalid
+        {:error, "Client #{to_client_id} does not exist"}
+
+      true ->
+        # Check `from_currency` and `to_currencies` validty
+        all_to_currencies =
+          case check_to_currencies do
+            true ->
+              get_all_currencies(to_clients, from_currency, direct_conversion)
+            false ->
+              :ok
+        from_currency_codes =  get_one_code(Transfer, from_currency)
+
+        cond do
+          all_to_currencies =
+        end
+        {:error, reason}
+           ->
+            {:error, reason}
+
+          _ ->
+            case check_to_currencies
+        from_currency =
+
+      end
+      end
+
+
+
+        cond do
+
+
+          currencies_checked != nil ->
+            {:error, "Currency #{currencies_checked} does not exist"}
+
+
+
+        true ->
+          # Check Values validity
+        end
+
+      end
+
+
+
+
+
+
+
+
+
+    # minor_unit = get_minor_unit(Transfer, currency)
+
+
+
+
+      # Check Values Validity
       Decimal.cmp(value, 0) != :gt ->
         {:error, "The value has to be > 0"}
 
@@ -383,6 +621,20 @@ defmodule FS.Transfer do
                 {:error, "The Client '#{client_id}' does have an #{alpha_code} account."}
             end
         end
+    end
+  end
+
+  @doc """
+  Get the main_currency of each client pass in the `to_clients` list.
+
+  If `direct_conversion` is true, [from_currency] is returned
+  """
+  @spec get_all_currencies({pid(), integer(), String.t()}) :: [String.t()]
+  def get_all_currencies(to_clients) do
+      Enum.each(to_clients, fn
+      {to_client_pid, _to_client_id, _to_client_name} ->
+      FS.Clients.get(to_client_pid, :main_currency) end)
+      |> Enum.uniq()
     end
   end
 
