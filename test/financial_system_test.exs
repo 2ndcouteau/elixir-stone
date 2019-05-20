@@ -18,6 +18,7 @@ defmodule FinancialSystemTest do
   end
 
   test "A transfer can be splitted between 2 or more accounts" do
+    # OK
     assert true
   end
 
