@@ -12,7 +12,6 @@ defmodule FS do
 
   return the `pid` and the unique `id` of the client
   """
-
   @spec create_client(String.t(), integer(), integer() | float()) :: {pid(), integer()}
   def create_client(name, main_currency \\ 978, amount_deposited \\ 0) do
     {client_pid, id} = FS.Registry.create_client(Register, name)
@@ -104,7 +103,7 @@ defmodule FS do
   By the string name, you can fetch several account with same name.
   Only ID are uniques.
   """
-  # @spec print_client_infos(String.t()) :: none()
+  @spec print_client_infos(String.t()) :: none()
   def print_client_infos(client) when is_binary(client) do
     clients = FS.Registry.fetch(Register, client)
 
@@ -118,42 +117,89 @@ defmodule FS do
     end
   end
 
-  #   - [] Transfert()
-  # 	- transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
-  # 	- transfert(account_id, to_account_id , value)
-  # 		- account_id == client_id + currency_code
-  # 	- transfert(client_id, wallet, to_wallet, value)
-  # 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
-  #
-  # - [] Multi_transfert
-  # 	- [] multi_transfert(client, [to_clients], value, currency, direct_conversion \\ :true)
-  # 	- [] multi_transfert(account_id, [to_account_id], value)
-  # 		- account_id == client_id + currency_code
-  # 	- [] multi_transfert([client_id], wallet, to_wallet, value)
-  # 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
-  #
-  # - [] Conversion(value, from_currency, to_currency)
+  @doc """
+  Transfer value from one given currency wallet to another client.
 
-  #
-  # def transfert(client_id, to_client_id, value, currency, direct_conversion \\ true) do
-  #   # if the currency is not available in the to_client %{wallet} and the direct_conversion is_false
-  #   # so create a new wallet with the current currency
-  #
-  #   # if the direct_conversion is true, call the conversion function
-  #   true
-  # end
-  #
-  # def multi_transfert(client_id, {to_clients_id}, value, currency, direct_conversion \\ true) do
-  #   # Just split the amount in Enum.count({to_client}) and then,
-  #   # call FS.transfert for each {to_client}
-  #
-  #   # If the split roundness is not round, make the rounding down, so the sender will save money.
-  #   true
-  # end
-  #
-  # def conversion(client_id, value, from_currency, to_currency) do
-  #   # If the conversion roundness is not round, make the rounding down, so the client will loose
-  #   # money.
-  #   true
-  # end
+  transfer/5
+
+  The wallet destination of the client is defined by the `direct_conversion` parameter.
+  If the direct conversion is `:true`, the value will be deposited in the main wallet of the client.
+  Else, the amount will be deposited in the same currency wallet than the sending client.
+  In this case, if the destination client does not already have a compliant currency wallet,
+  this last is created.
+
+  Exemple:
+  ```
+    transfer(42000, 24000, 101010, "BRL", :false)
+  ```
+  """
+  defdelegate transfer(from_client_id, to_client_id, from_currency, value, direct_conversion),
+    to: FS.Transfer,
+    as: :transfer
+
+  @doc """
+  Transfer value from one account to another.
+
+  transfer/3
+
+  An account is a partcular wallet of a particular client.
+  The id account is contruct by the addition of the id_client and the id_currency of the wallet
+
+  Exemple:
+  For the account_id = 45978, the id_client is 45000 and the wallet is 978 => EUR
+  """
+  defdelegate transfer(account_id, to_account_id, value), to: FS.Transfer, as: :transfer
+
+  @doc """
+  Transfer value from wallet to another wallet for the same Client
+
+  transfer/4
+
+  - wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
+  """
+  defdelegate transfer(from_client_id, from_wallet, to_wallet, value),
+    to: FS.Transfer,
+    as: :transfer
+
+  @doc """
+  multi_transfer/5
+
+  Transfer a `value` from a `client` `wallet` to one or several clients wallets.
+  Direct conversion can be made.
+  The value is split in N wallet destinations.
+  """
+  defdelegate multi_transfer(
+                from_client_id,
+                to_clients_ids,
+                from_currency,
+                value,
+                direct_conversion
+              ),
+              to: FS.Transfer,
+              as: :transfer
+
+  @doc """
+  Transfer value from one account to a list of account.
+
+  multi_transfer/3
+
+  An account is a partcular wallet of a particular client.
+  The id account is contruct by the addition of the id_client and the id_currency of the wallet
+
+  Exemple:
+  For the account_id = 45978, the id_client is 45000 and the wallet is 978 => EUR
+  """
+  defdelegate multi_transfer(account_id, to_account_id, value), to: FS.Transfer, as: :transfer
+
+  @doc """
+  ## Conversion
+
+  Make conversion between two currencies.
+  Base : EUR
+
+  This conversion takes into account the numbers the `minor number` of each currencies.
+  The default context has a precision of 28, the rounding algorithm is :half_up.
+  The set trap enablers are :invalid_operation and :division_by_zero
+  """
+  defdelegate conversion(value, from_currency, to_currency), to: Currency_API, as: :conversion
 end
