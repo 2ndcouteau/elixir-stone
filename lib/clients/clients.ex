@@ -185,8 +185,6 @@ defmodule FS.Clients do
         wallets = FS.Clients.get(client_pid, :wallets)
 
         Enum.find(wallets, fn {code, _value} ->
-          # IO.puts("WINFO code" <> Tools.typeof(code))
-          # IO.puts("WINFO currency" <> Tools.typeof(currency))
           code == currency
         end)
 
