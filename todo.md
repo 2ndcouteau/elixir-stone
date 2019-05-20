@@ -144,6 +144,77 @@
 					informations from this `ID` or to proof the incoherence of
 					the datas
 
+
+ ##################################################
+ # DEFINITION OF CHECK FOR EACH TRANSFER FUNCTION #
+ ##################################################
+##### Check `from_client` and `to_clients` validity
+check_clients = check_clients()
+- transfer/5
+  - check client and [to_client]
+- multi/5
+  - check client and [to_clients]
+- transfer/3
+  - check client and [to_client]
+- multi/3
+  - check client and [to_clients]
+- transfer/4
+  - check_client
+RETURN :ok | {:error, reason}
+
+2 check functions (1 sub_function, 1 direct check)
+
+--------------------------------------------------------------------------------------------------
+##### Check `from_currency` and `to_currencies` validty
+check_currencies = check_currencies()
+- transfer/5
+  - check currency and [to_main_currency] -> create list main_currencies
+  // Direct Conversion == true
+  - check currency and [currency] -> create list of N elem with only [currency]
+- multi/5
+  - check currency and [to_main_currencies] -> create list main_currencies
+  // Direct Conversion == true
+  - check currency and [currency] -> create list of N elem with only [currency]
+- transfer/3
+  - check currency and [to_currency]
+- multi/3
+  - check currency and [to_currencies]
+- transfer/4
+  - check currency and [to_currency]
+RETURN [to_currencies] | {:error, reason}
+[to_currencies] = [code_number, ...]
+
+2 functions
+  - transfer/5 multi/5 return a created list and Direct conversion param
+  - other get list of currencies, and return it if OK
+
+--------------------------------------------------------------------------------------------------
+##### Check Values validity
+check_values = check_values([to_currencies]) // check_currencies return
+- transfer/5
+ (split_value = value / 1)
+  - check conversion(split_value, [to_currency]) > 0
+  // Direct Conversion == true
+  - check split_value > 0
+- multi/5
+ (split_value = value / nb([to_currencies]))
+  - check conversion(split_value, [to_currencies]) > 0
+  // Direct Conversion == true
+  - check split_value > 0
+- transfer/3
+  - check conversion(split_value, [to_currency]) > 0
+- multi/3
+  - check conversion(split_value, [to_currencies]) > 0
+- transfer/4
+  - check conversion(split_value, [to_currencies]) > 0
+RETURN [{split_value, transfer_value}] | {:error, reason}
+
+1 function
+  - Direct conversion or not conversion function take care about return the
+  value if the `from_currency` and the `to_currency` are the same
+
+--------------------------------------------------------------------------------
+
 ---
 ---
 # <u>__DONE__</u>
