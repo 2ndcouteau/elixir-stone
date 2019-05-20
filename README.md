@@ -31,6 +31,85 @@ You are now ready to use the `elixir-stone` project
 
 ### <u>How to use :
 
+- Client management:
+
+create_client(name, main_currency \\ 978 "EUR", amount_deposited \\ 0)
+```
+iex> create_client("Mister Jack", "BRL", 28451)
+iex> create_client("Madame Bault", 952, 849451)
+```
+
+delete_client(client_id)
+```
+iex> delete_client("1000")
+iex> delete_client("2000")
+```
+
+create_wallet(client_id, currency, amount_deposited \\ 0)
+```
+iex> create_wallet(1000, 124, 4242)
+```
+
+delete_wallet(client_id, currency)
+
+The wallet can only be delete if there is no money in it.
+Wallet_found == 0
+```
+iex> delete_wallet(1000, 124)
+```
+
+
+
+print_client_infos(client) when is_integer(client)
+
+print_client_infos(client) when is_binary(client)
+```
+iex> print_client_infos("Madame Bault")
+> 1000
+iex> print_client_infos(1000)
+---------------------
+ID: 1000, Name: Madame Bault
+Main Currency: EUR, 978, minor_unit = 2
+EUR: 8813.00
+---------------------
+```
+
+- Transfers management
+
+transfer(from_client_id, to_client_id, from_currency, value, direct_conversion)
+```
+iex> transfer(27000, 48000, "EUR", 1200, :true)
+iex> transfer(51000, 92000, 124, 1158.74, :false)
+```
+
+transfer(account_id, to_account_id, value)
+```
+transfer(84124, 3978, 3200)
+```
+
+transfer(from_client_id, from_wallet, to_wallet, value)
+```
+transfer(65000, 978, 124, 321.52)
+```
+
+multi_transfer(from_client_id, to_clients_ids, from_currency, value, direct_conversion)
+```
+multi_transfer(35000, [3000, 84000, 124000, 72000], 978, 1200, :true)
+multi_transfer(35000, [3000], "CAD", 421.03, :false)
+```
+
+
+multi_transfer(account_id, to_accounts_ids, value)
+```
+multi_transfer(84978, [142124, 6986, 3840], 943.45)
+```
+
+conversion(value, from_currency, to_currency)
+```
+conversion(731.5, 124, "BRL")
+```
+
+---
 ##### <u>- Run the program
 You can lunch the application with the following command:
 ```
