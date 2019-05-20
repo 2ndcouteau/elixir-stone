@@ -85,8 +85,9 @@ defmodule FS.Clients do
           :already_exists
         end
 
+      # Currency unvailable
       {:error, reason} ->
-        IO.warn(reason)
+        Tools.eputs(reason)
         {:error, reason}
     end
   end
@@ -164,13 +165,12 @@ defmodule FS.Clients do
   """
   @spec get_clients_list_back_infos([integer()]) :: [{pid(), integer(), String.t()}] | [...]
   def get_clients_list_back_infos(clients) when is_list(clients) do
-    Enum.each(clients, fn id_client ->
+    Enum.map(clients, fn id_client ->
       FS.Registry.fetch(Register, id_client)
       # Use Enum.at because fetch() return a [client]
       # When the id_client is a number_code the len[client] == 1
       |> Enum.at(0)
     end)
-    |> IO.inspect()
   end
 
   @doc """
