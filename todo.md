@@ -3,7 +3,6 @@
 ### Feat:
 
 ##### In progress / cooking task
-BUG conversion -- Bad return
 
 #### Test Stone Challenge Financial-System
 - [] Create the whole architecture
@@ -24,13 +23,6 @@ BUG conversion -- Bad return
 			- Currencies API
 
 
-- client.ex
-	- put_new_wallet(client_pid, currency, amount_deposited)
-	If a wallet already exist, need to decide if:
-		- Nothing happened, and an error: :already_exist if return
-			- Actual solution
-		- The wallet if update and the amount_deposited is added to the previous
-			- Possible new solution
 ---
 
 ### <u>Tests:
@@ -58,18 +50,18 @@ BUG conversion -- Bad return
 - [x] Create_wallet(client_id, currency, deposit \\ 0)
 - [x] Delete wallet, only if empty -> value == 0
 
-- [] Transfert()
-	- transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
-	- transfert(account_id, to_account_id , value)
+- [x] Transfert()
+	- [x] transfert(client_id, to_client_id, value, currency, direct_conversion \\ :true)
+	- [x] transfert(account_id, to_account_id , value)
 		- account_id == client_id + currency_code
-	- transfert(client_id, wallet, to_wallet, value)
+	- [x] transfert(client_id, wallet, to_wallet, value)
 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
 
-- [] Multi_transfert
-	- [] multi_transfert(client, [to_clients], value, currency, direct_conversion \\ :true)
-	- [] multi_transfert(account_id, [to_account_id], value)
+- [x] Multi_transfert
+	- [x] multi_transfert(client, [to_clients], value, currency, direct_conversion \\ :true)
+	- [x] multi_transfert(account_id, [to_account_id], value)
 		- account_id == client_id + currency_code
-	- [] multi_transfert([client_id], wallet, to_wallet, value)
+	- [x] multi_transfert([client_id], wallet, to_wallet, value)
 		- wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
 
 
@@ -286,6 +278,8 @@ RETURN [{split_value, transfer_value}] | {:error, reason}
 
 
 [x] Correct timestamp check refresh condition !
+[x] BUG conversion -- Bad return
+
 
 #### Test Programs
 - "Hello World" Elixir

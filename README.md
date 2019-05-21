@@ -172,6 +172,19 @@ The `secret` folder should normally be exclude in the .gitignore configuration
 file.
 ---
 
+##### Program Architecture:
+
+- Supervisor
+	- Client Registry
+	- DynamicSupervisor
+		- Client
+	- Transfer Registry
+	- DynamicSupervisor
+		- Transfers
+	- Currencies API
+
+(The `Transfers` functions are not all Supervised yet)
+
 ##### Resources:
 - Main Resources
 	- [Elixir-lang](https://elixir-lang.org/getting-started/introduction.html)
