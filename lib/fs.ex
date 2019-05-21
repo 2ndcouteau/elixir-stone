@@ -68,7 +68,7 @@ defmodule FS do
   By the string name, you can fetch several account with same name.
   Only ID are uniques.
   """
-  @spec print_client_infos(binary() | pos_integer()) :: :error | :ok
+  @spec print_client_infos(binary() | pos_integer() | String.t()) :: :ok | :error
   def print_client_infos(client) when is_integer(client) do
     client = FS.Clients.get_client_back_infos(client)
 
@@ -103,7 +103,6 @@ defmodule FS do
   By the string name, you can fetch several account with same name.
   Only ID are uniques.
   """
-  @spec print_client_infos(String.t()) :: none()
   def print_client_infos(client) when is_binary(client) do
     clients = FS.Registry.fetch(Register, client)
 

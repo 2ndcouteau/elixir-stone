@@ -59,7 +59,7 @@ defmodule Tools do
   def type_dec(amount_deposited) when is_float(amount_deposited),
     do: D.from_float(amount_deposited)
 
-  @spec type_dec(D.t()) :: D.t()
+  @spec type_dec(D.t()) :: D.t() | {:error, String.t()}
   def type_dec(amount_deposited) do
     case D.decimal?(amount_deposited) do
       true -> amount_deposited

@@ -200,38 +200,44 @@ defmodule Currency_API do
   def conversion(value, from_currency, to_currency) do
     # when is_binary(from_currency)
     # when is_binary(to_currency) do
-    IO.inspect(from_currency, label: "From_currency")
-    IO.inspect(to_currency, label: "To_currency")
+    # IO.inspect(from_currency, label: "From_currency")
+    # IO.inspect(to_currency, label: "To_currency")
+    {from_currency, _alpha, _minor} = FS.Transfer.get_one_code(Transfer, from_currency)
+    {to_currency, _alpha, _minor} = FS.Transfer.get_one_code(Transfer, to_currency)
 
     {numeric_base, _alpha_base, _minor_unit} =
       FS.Transfer.get_base(Transfer)
       |> (&FS.Transfer.get_one_code(Transfer, &1)).()
-      |> IO.inspect(label: "BASE")
 
-    dec_value =
-      Tools.type_dec(value)
-      |> IO.inspect(label: "dec_value")
+    # |> IO.inspect(label: "BASE")
+
+    dec_value = Tools.type_dec(value)
+    # |> IO.inspect(label: "dec_value")
 
     case is_bases?(numeric_base, from_currency, to_currency) do
       {true, true} ->
         dec_value
-        |> IO.inspect(label: "Conversion FF")
 
-      {true, false} ->
-        currency_to_base(dec_value, from_currency)
-        |> round_minor(numeric_base)
-        |> IO.inspect(label: "Conversion FT")
+      # |> IO.inspect(label: "Conversion TT")
 
       {false, true} ->
+        currency_to_base(dec_value, from_currency)
+        |> round_minor(numeric_base)
+
+      # |> IO.inspect(label: "Conversion TF")
+
+      {true, false} ->
         base_to_currency(dec_value, to_currency)
         |> round_minor(to_currency)
-        |> IO.inspect(label: "Conversion TF")
+
+      # |> IO.inspect(label: "Conversion FT")
 
       {false, false} ->
         currency_to_base(dec_value, from_currency)
         |> base_to_currency(to_currency)
         |> round_minor(to_currency)
-        |> IO.inspect(label: "Conversion TT")
+
+        # |> IO.inspect(label: "Conversion FF")
     end
   end
 
@@ -249,28 +255,42 @@ defmodule Currency_API do
   end
 
   defp base_to_currency(value, to_currency) do
+    # IO.inspect(to_currency, label: "ERROR currency")
+
     get_rate(to_currency)
+    |> Tools.type_dec()
     |> (&D.mult(value, &1)).()
-    |> IO.inspect(label: "BtoC")
+
+    # |> IO.inspect(label: "BtoC")
   end
 
   defp currency_to_base(value, from_currency) do
     get_rate(from_currency)
+    |> Tools.type_dec()
     |> (&D.div(value, &1)).()
-    |> IO.inspect(label: "CtoB")
+
+    # |> IO.inspect(label: "CtoB")
   end
 
   defp is_bases?(base, currency_code1, currency_code2) do
-    if currency_code1 == base do
-      if currency_code2 == base do
+    # IO.inspect(base, label: "Base check")
+    # IO.inspect(currency_code1, label: "currency1 check")
+    # IO.inspect(currency_code2, label: "currency2 check")
+
+    if currency_code1 == base or currency_code1 == currency_code2 do
+      if currency_code2 == base or currency_code1 == currency_code2 do
+        # IO.inspect("TT")
         {true, true}
       else
+        # IO.inspect("TF")
         {true, false}
       end
     else
       if currency_code2 == base do
+        # IO.inspect("FT")
         {false, true}
       else
+        # IO.inspect("FF")
         {false, false}
       end
     end
@@ -288,6 +308,8 @@ defmodule Currency_API do
         {:error, "Currency unavailable"}
 
       rate ->
+        # IO.inspect(Tools.typeof(rate), label: "Rate_type")
+        # IO.inspect(rate, label: "RATE")
         D.from_float(rate)
     end
   end

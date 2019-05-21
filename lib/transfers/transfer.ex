@@ -124,12 +124,12 @@ defmodule FS.Transfer do
   Else, the value is put on the same currency wallet.
   """
   @spec make_transfer(
-          {pid(), integer(), String.t()},
-          String.t(),
+          {pid(), pos_integer(), String.t()},
+          {String.t(), String.t(), String.t()},
           D.t(),
-          {pid(), integer(), String.t(), D.t()}
+          [{pid(), pos_integer(), String.t(), D.t()}]
         ) ::
-          :ok
+          [any()]
   # {String.t(), D.t(), D.t()}
   def make_transfer(from_client, from_currency, value, chk_values) do
     # Get Client infos
@@ -176,7 +176,7 @@ defmodule FS.Transfer do
           integer(),
           integer(),
           integer() | String.t(),
-          number() | D.t(),
+          number(),
           boolean()
         ) :: {String.t(), D.t(), D.t()} | atom()
   def transfer(from_client_id, to_client_id, from_currency, value, direct_conversion)
@@ -234,10 +234,11 @@ defmodule FS.Transfer do
   Exemple:
   For the account_id = 45978, the id_client is 45000 and the wallet is 978 => EUR
   """
-  @spec transfer(integer(), integer(), number() | D.t()) :: atom()
+  @spec transfer(integer(), integer(), number()) :: atom()
   def transfer(account_id, to_account_id, value)
       when is_account(account_id)
       when is_account(to_account_id)
+      when is_number(value)
       when value > 0 do
     value = Tools.type_dec(value)
 
@@ -285,11 +286,12 @@ defmodule FS.Transfer do
 
   - wallet/to_wallet :: currency_code :: integer in list_currency ISO_4217
   """
-  @spec transfer(integer(), integer(), integer(), number() | D.t()) :: atom()
+  @spec transfer(integer(), integer(), integer(), number()) :: atom()
   def transfer(from_client_id, from_wallet, to_wallet, value)
       when is_client(from_client_id)
       when is_wallet(from_wallet)
       when is_wallet(to_wallet)
+      when is_number(value)
       when value > 0 do
     value = Tools.type_dec(value)
     from_wallet = Tools.type_currency(from_wallet)
@@ -362,7 +364,7 @@ defmodule FS.Transfer do
   Returna tuple of 3 list.
   """
   @spec extract_info_list_account_id([integer()]) ::
-          [{{pid(), integer(), String.t()} | nil, integer(), String.t()}]
+          {[{pid(), integer(), String.t()} | nil], [integer()], [String.t()]}
   def(extract_info_list_account_id(accounts_ids)) do
     currencies =
       Enum.map(accounts_ids, fn account_id ->
@@ -395,7 +397,7 @@ defmodule FS.Transfer do
           integer(),
           [integer()],
           integer() | String.t(),
-          number() | D.t(),
+          number(),
           boolean()
         ) :: {String.t(), D.t(), D.t()} | atom()
   def multi_transfer(from_client_id, to_clients_ids, from_currency, value, direct_conversion)
@@ -455,10 +457,11 @@ defmodule FS.Transfer do
   Exemple:
   For the account_id = 45978, the id_client is 45000 and the wallet is 978 => EUR
   """
-  @spec multi_transfer(integer(), [integer()], number() | D.t()) :: atom()
+  @spec multi_transfer(integer(), [integer()], number()) :: atom()
   def multi_transfer(account_id, to_account_id, value)
       when is_account(account_id)
       when is_list(to_account_id)
+      when is_number(value)
       when value > 0 do
     value = Tools.type_dec(value)
 
@@ -505,7 +508,7 @@ defmodule FS.Transfer do
   @doc """
   Check if each member of the client list exists.
   """
-  @spec check_clients(tuple(), integer(), [tuple()], [integer()]) :: :ok | {:error, String.t()}
+  @spec check_clients(tuple(), integer(), [tuple()], [integer()]) :: atom() | {:error, String.t()}
   def check_clients(client, client_id, to_clients, to_clients_ids) do
     to_client_invalid =
       Enum.find(
@@ -531,7 +534,7 @@ defmodule FS.Transfer do
   @doc """
   Check if this client exists.
   """
-  @spec check_one_client(tuple(), integer()) :: :ok | {:error, String.t()}
+  @spec check_one_client(tuple(), integer()) :: atom() | {:error, String.t()}
   def check_one_client(client, client_id) do
     if client == nil do
       {:error, "Client #{client_id} does not exist."}
@@ -547,8 +550,13 @@ defmodule FS.Transfer do
   `to_currencies` can be get from `main_currency` of each client if direct_conversion is `:true` or
   can be generated with the `from_currency` with the number of clients.
   """
-  @spec check_currencies(String.t(), {String.t(), String.t(), String.t()}, [tuple()], boolean()) ::
-          [{integer, String.t()}] | {:error, String.t()}
+  @spec check_currencies(
+          integer() | String.t(),
+          {String.t(), String.t(), String.t()},
+          [{pid(), integer(), String.t()}] | [nil],
+          boolean()
+        ) ::
+          [{pid(), pos_integer(), String.t()}] | {:error, String.t()}
   def check_currencies(from_currency, from_currency_code, to_clients, direct_conversion) do
     case from_currency_code do
       {:error, _} ->
@@ -577,7 +585,7 @@ defmodule FS.Transfer do
   @spec check_currencies_account({String.t(), String.t(), String.t()}, String.t(), [tuple], [
           String.t()
         ]) ::
-          [{integer, String.t()}] | {:error, String.t()}
+          [{pid(), pos_integer(), String.t()}] | {:error, String.t()}
   def check_currencies_account(from_currency, from_currency_id, to_clients, to_currencies) do
     case from_currency do
       {:error, _reason} ->
@@ -623,7 +631,12 @@ defmodule FS.Transfer do
 
   If one conversion value is zero, so that mean that the change rate is to high to convert this value
   """
-  @spec check_values({pid(), integer(), String.t()}, integer(), String.t(), D.t()) ::
+  @spec check_values(
+          [{pid(), pos_integer(), String.t()}],
+          pos_integer(),
+          {String.t(), String.t(), String.t()},
+          D.t()
+        ) ::
           [{pid(), integer, String.t(), D.t()}] | {:error, String.t()}
   def check_values(clients_currencies, from_client_id, from_currency_code, value) do
     split_value = Decimal.div(value, Enum.count(clients_currencies))
