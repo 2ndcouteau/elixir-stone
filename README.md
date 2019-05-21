@@ -12,6 +12,28 @@ From a client wallet to another wallet, from a client wallet to another
 client wallet or between a client wallet and multiple clients wallets.
 Every money transfer are compliant with the norm ISO_4217.
 
+###### What will you be able to do ?:
+
+With this program, you can create and delete client accounts.
+For each account, create new wallets with a particular currency and a defined
+amount.
+With these accounts, you will be able to make transfers between them.
+And finally you can make conversion between two different currencies.
+
+All currencies available are compliant with the ISO_4217.
+You can use them with there conventional codes like "EUR", "978", 978.
+
+All currency rates are updated each hour from fixer.io
+
+Clients are identified by an ID which is a multiple of 1000. Ex: 5000, 68000, etc.
+There is also a name, to help to make the distinction between clients.
+
+###### Known bugs:
+
+When a `currency code` is provide as an integer,
+if the `code < 100`, it will not work because of string_to_integer conversion.
+Use the string type like "008", or the letter code like "ALL".
+
 ---
 ### <u>How to install :
 
@@ -31,7 +53,7 @@ You are now ready to use the `elixir-stone` project
 
 ### <u>How to use :
 
-- Client management:
+#### Client management:
 
 create_client(name, main_currency \\ 978 "EUR", amount_deposited \\ 0)
 ```
@@ -74,7 +96,7 @@ EUR: 8813.00
 ---------------------
 ```
 
-- Transfers management
+#### Transfers management
 
 transfer(from_client_id, to_client_id, from_currency, value, direct_conversion)
 ```
