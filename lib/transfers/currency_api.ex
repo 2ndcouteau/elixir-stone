@@ -198,25 +198,40 @@ defmodule Currency_API do
   """
   @spec conversion(number() | D.t(), currency(), currency()) :: any()
   def conversion(value, from_currency, to_currency) do
-    base = FS.Transfer.get_base(Transfer)
-    dec_value = Tools.type_dec(value)
+    # when is_binary(from_currency)
+    # when is_binary(to_currency) do
+    IO.inspect(from_currency, label: "From_currency")
+    IO.inspect(to_currency, label: "To_currency")
 
-    case is_bases?(base, from_currency, to_currency) do
-      {false, false} ->
+    {numeric_base, _alpha_base, _minor_unit} =
+      FS.Transfer.get_base(Transfer)
+      |> (&FS.Transfer.get_one_code(Transfer, &1)).()
+      |> IO.inspect(label: "BASE")
+
+    dec_value =
+      Tools.type_dec(value)
+      |> IO.inspect(label: "dec_value")
+
+    case is_bases?(numeric_base, from_currency, to_currency) do
+      {true, true} ->
         dec_value
-
-      {false, true} ->
-        currency_to_base(dec_value, from_currency)
-        |> round_minor(base)
+        |> IO.inspect(label: "Conversion FF")
 
       {true, false} ->
+        currency_to_base(dec_value, from_currency)
+        |> round_minor(numeric_base)
+        |> IO.inspect(label: "Conversion FT")
+
+      {false, true} ->
         base_to_currency(dec_value, to_currency)
         |> round_minor(to_currency)
+        |> IO.inspect(label: "Conversion TF")
 
-      {true, true} ->
+      {false, false} ->
         currency_to_base(dec_value, from_currency)
         |> base_to_currency(to_currency)
         |> round_minor(to_currency)
+        |> IO.inspect(label: "Conversion TT")
     end
   end
 
@@ -236,11 +251,13 @@ defmodule Currency_API do
   defp base_to_currency(value, to_currency) do
     get_rate(to_currency)
     |> (&D.mult(value, &1)).()
+    |> IO.inspect(label: "BtoC")
   end
 
   defp currency_to_base(value, from_currency) do
     get_rate(from_currency)
     |> (&D.div(value, &1)).()
+    |> IO.inspect(label: "CtoB")
   end
 
   defp is_bases?(base, currency_code1, currency_code2) do
