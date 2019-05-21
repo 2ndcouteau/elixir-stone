@@ -3,8 +3,7 @@
 ### Feat:
 
 ##### In progress / cooking task
-[] Correct timestamp check refresh condition !
-
+BUG conversion -- Bad return
 
 #### Test Stone Challenge Financial-System
 - [] Create the whole architecture
@@ -46,8 +45,6 @@
 ---
 
 ### <u>Docs
-- Make docs for clients.ex
-- Make docs for registry.ex
 
 ---
 
@@ -288,6 +285,8 @@ RETURN [{split_value, transfer_value}] | {:error, reason}
 	- [x] wallet updates
 
 
+[x] Correct timestamp check refresh condition !
+
 #### Test Programs
 - "Hello World" Elixir
 - "Hello World" Elixir Script
@@ -318,6 +317,11 @@ RETURN [{split_value, transfer_value}] | {:error, reason}
 - Config Atom for Elixir
 - Add Elixir linter in Atom
 - Format command executed for each save on '.ex' and '.exs' files
+
+---
+### <u>Docs:
+- Make docs for clients.ex
+- Make docs for registry.ex
 
 ---
 ### <u>Test:

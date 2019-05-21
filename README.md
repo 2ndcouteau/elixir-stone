@@ -106,7 +106,7 @@ multi_transfer(84978, [142124, 6986, 3840], 943.45)
 
 conversion(value, from_currency, to_currency)
 ```
-conversion(731.5, 124, "BRL")
+conversion(731.5, 124, 986)
 ```
 
 ---
