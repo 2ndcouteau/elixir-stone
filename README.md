@@ -53,6 +53,15 @@ You are now ready to use the `elixir-stone` project
 
 ### <u>How to use :
 
+#### Import
+
+For comfort, main functions are gather in a single module named FS.
+So you can start by import FS directly and use program as showing bellow.
+
+```
+iex> import FS
+```
+
 #### Client management:
 
 create_client(name, main_currency \\ 978 "EUR", amount_deposited \\ 0)
