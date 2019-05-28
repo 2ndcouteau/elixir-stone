@@ -28,12 +28,6 @@ All currency rates are updated each hour from fixer.io
 Clients are identified by an ID which is a multiple of 1000. Ex: 5000, 68000, etc.
 There is also a name, to help to make the distinction between clients.
 
-###### Known bugs:
-
-When a `currency code` is provide as an integer,
-if the `code < 100`, it will not work because of string_to_integer conversion.
-Use the string type like "008", or the letter code like "ALL".
-
 ---
 ### <u>How to install :
 
