@@ -2,26 +2,11 @@
 
 ### Feat:
 
+- Find a way to import FS by default
+- Coverage tests
+
+
 ##### In progress / cooking task
-
-#### Test Stone Challenge Financial-System
-- [] Create the whole architecture
-	- [x] Create a supervisor
-	- [x] Create a registry
-	- [x] Create a DynamicSupervisor for Clients
-	- [x] Create first rules for Clients
-	- [x] Find a way to fetch conversion values
-
-- Architecture: ~~
-	- Supervisor
-		- Client Registry
-		- DynamicSupervisor
-			- Client
-		- Transfer Registry
-		- DynamicSupervisor
-			- Transfers
-			- Currencies API
-
 
 ---
 
@@ -67,7 +52,27 @@
 
 ### <u>Structure:
 
-- #### New Client creation:
+#### Test Stone Challenge Financial-System
+- [x] Create the whole architecture
+	- [x] Create a supervisor
+	- [x] Create a registry
+	- [x] Create a DynamicSupervisor for Clients
+	- [x] Create first rules for Clients
+	- [x] Find a way to fetch conversion values
+
+- Architecture: ~~
+	- Supervisor
+		- Client Registry
+		- DynamicSupervisor
+			- Client
+		- Transfer Registry
+		- DynamicSupervisor
+			- Transfers
+			- Currencies API
+
+
+
+#### - New Client creation:
 	- Prototype:
 		- Parameters: ("name", ID, "Currency_CODE", %{Wallets map})
 		- .
@@ -279,7 +284,7 @@ RETURN [{split_value, transfer_value}] | {:error, reason}
 
 [x] Correct timestamp check refresh condition !
 [x] BUG conversion -- Bad return
-
+[x] Bug Currency integer_to_sting
 
 #### Test Programs
 - "Hello World" Elixir
