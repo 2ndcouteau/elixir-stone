@@ -71,6 +71,23 @@ defmodule Tools do
   Uniformise the type of valid currency parameter to String.t()
   """
   @spec type_currency(arg) :: String.t() when arg: integer() | any()
-  def type_currency(currency) when is_integer(currency), do: Integer.to_string(currency)
+  def type_currency(currency) when is_integer(currency) do
+    offset_currency = div(currency, 10)
+
+    cond do
+      offset_currency == 0 ->
+        ("00" <> Integer.to_string(currency))
+        |> IO.inspect()
+
+      offset_currency < 10 ->
+        ("0" <> Integer.to_string(currency))
+        |> IO.inspect()
+
+      true ->
+        Integer.to_string(currency)
+        |> IO.inspect()
+    end
+  end
+
   def type_currency(currency), do: currency
 end
