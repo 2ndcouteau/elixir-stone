@@ -1,7 +1,7 @@
 # elixir_stone
 ###### Entry test for Stone company
 
-This program is writing in [Elixir](https://elixir-lang.org/). It's has been made in a learning purpose and test purpose.
+This program is writing in [Elixir](https://elixir-lang.org/). It has been made in a learning purpose and test purpose.
 So some parts suffer of over-engineering.
 
 ###### Summary of the exercise:
